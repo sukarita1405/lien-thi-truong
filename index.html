@@ -4104,6 +4104,24 @@ let selectedStage = 1;
 const CYCLE_CENTER = { x:250, y:250 };
 const CYCLE_R = 168;
 
+// ---- Tên hiển thị động cho Giai đoạn 1 & 5 (SỬA LỖI — phản hồi thực tế lần 2) ----
+// "Tạo Đỉnh"/"Tạo Đáy" đúng ngữ pháp mô tả THỜI ĐIỂM giá VỪA đảo chiều — nhưng khi Trái Phiếu đã được xác nhận
+// "Đã Kéo Dài" hoặc "Đã Vượt Quá 1 Chu Kỳ", bản thân CÁI TÊN này (không chỉ con số) gây hiểu lầm: người xem thấy
+// biểu đồ giảm 5 năm liên tục mà tiêu đề vẫn nói "Tạo Đỉnh" (nghe như "vừa lên đỉnh") sẽ thấy vô lý ngay từ cái
+// nhìn đầu tiên, dù xác suất bên dưới đã tính đúng. Trước đây chỉ thêm cảnh báo Ở CẠNH — không đủ, vì tiêu đề
+// chính vẫn đứng yên. Giờ đổi thẳng CHỮ hiển thị cho khớp đúng thực tế đang diễn ra, không chỉ thêm ghi chú.
+function getDisplayStageTitle(stage){
+  if(stage.id === 5){
+    if(bondTrendMaturity === 'secular') return 'Giá Trái Phiếu ĐÃ Tạo Đỉnh Từ Lâu — Đang Giảm Kéo Dài';
+    if(bondTrendMaturity === 'extended') return 'Giá Trái Phiếu Đã Tạo Đỉnh — Đang Giảm';
+  }
+  if(stage.id === 1){
+    if(bondTrendMaturity === 'secular') return 'Giá Trái Phiếu ĐÃ Tạo Đáy Từ Lâu — Đang Tăng Kéo Dài';
+    if(bondTrendMaturity === 'extended') return 'Giá Trái Phiếu Đã Tạo Đáy — Đang Tăng';
+  }
+  return stage.title;
+}
+
 // ---- Xác suất Chu Kỳ Nợ Ngắn Hạn (8 giai đoạn) — suy luận tự động từ hướng đi hiện tại của Giá Trái Phiếu Mỹ,
 // Cổ Phiếu và Hàng Hóa. Trái Phiếu luôn là tài sản mở màn ở CẢ pha Đáy lẫn pha Đỉnh trong khung Murphy/Dalio,
 // nên mỗi "chữ ký" 3 tài sản dưới đây đặt Trái Phiếu Mỹ làm biến dẫn dắt, đối chiếu thêm Cổ Phiếu & Hàng Hóa để
@@ -4211,7 +4229,10 @@ function computeShortCycleProbabilities(){
       // đổi chiều (Cổ Phiếu/Hàng Hóa) mới có quyền đó.
       const bestCompat = Math.max(compat6, compat7, compat8);
       const maxOther = Math.max(newRaw6, newRaw8); // raw7 luôn nội suy nằm giữa raw6/raw8, không thể vượt max của 2 cái này
-      raw[5] = (bestCompat < 1.5 && newRaw5 < maxOther) ? maxOther + 0.05 : newRaw5;
+      // SỬA LỖI (phát hiện qua phản hồi thực tế lần 2): biên độ +0.05 quá nhỏ, bị "nuốt mất" khi làm tròn %
+      // (2 giai đoạn cùng hiện 21% dù Giai đoạn 5 vẫn thắng nội bộ) — khiến nhìn như app không có chính kiến.
+      // Tăng biên độ lên tối thiểu 8% giá trị maxOther để đảm bảo SỐNG SÓT qua bước làm tròn, luôn hiện % khác biệt rõ ràng.
+      raw[5] = (bestCompat < 1.5 && newRaw5 < maxOther) ? maxOther * 1.08 : newRaw5;
       raw[6] = newRaw6; raw[8] = newRaw8;
     } else if(state.bonds === 1){
       const matchFwd = (actual, expected) => actual === expected ? 1 : (actual === 0 ? 0.5 : 0);
@@ -4230,7 +4251,7 @@ function computeShortCycleProbabilities(){
       const newRaw4 = raw[4] + shift * (w4 / wSum);
       const bestCompat = Math.max(compat2, compat3, compat4);
       const maxOther = Math.max(newRaw2, newRaw4);
-      raw[1] = (bestCompat < 1.5 && newRaw1 < maxOther) ? maxOther + 0.05 : newRaw1;
+      raw[1] = (bestCompat < 1.5 && newRaw1 < maxOther) ? maxOther * 1.08 : newRaw1;
       raw[2] = newRaw2; raw[4] = newRaw4;
     }
   }
@@ -4370,7 +4391,7 @@ function renderReversalImminence(){
 
   el.innerHTML = `
     <div class="sc-prob-header">
-      <span class="sc-prob-title">🔄 Xác Suất Sắp Đảo Chiều — Giai đoạn ${ri.topStage.id} (${ri.topStage.title}) sắp nhường chỗ cho Giai đoạn ${ri.nextStage.id} (${ri.nextStage.title})?</span>
+      <span class="sc-prob-title">🔄 Xác Suất Sắp Đảo Chiều — Giai đoạn ${ri.topStage.id} (${getDisplayStageTitle(ri.topStage)}) sắp nhường chỗ cho Giai đoạn ${ri.nextStage.id} (${getDisplayStageTitle(ri.nextStage)})?</span>
     </div>
     <div class="sc-prob-row top" style="background:${HEXES[ri.topKey]}22">
       <span class="sc-prob-label" style="color:${HEXES[ri.topKey]}">⏱️ Khung thời gian dự kiến</span>
@@ -4396,7 +4417,7 @@ function renderShortCycleProbReadout(){
     const isTop = id === topId;
     return `<div class="sc-prob-row${isTop?' top':''}">
       <span class="sc-prob-id" style="color:${hex}">${id}</span>
-      <span class="sc-prob-label">${s.title}</span>
+      <span class="sc-prob-label">${getDisplayStageTitle(s)}</span>
       <div class="sc-prob-bar-wrap"><div class="sc-prob-bar-fill" style="width:${pct[id]}%;background:${hex}"></div></div>
       <span class="sc-prob-pct">${pct[id]}%</span>
     </div>`;
@@ -5125,7 +5146,7 @@ function renderStageDetail(){
       <span class="stage-pill" style="color:var(--muted)">${stage.phase==='bottom'?'ĐÁY':'ĐỈNH'}</span>
       <span class="stage-pill" style="color:${probHex};border-color:${probHex}66">${isTop?'★ ':''}Xác suất hiện tại: ${p}%</span>
     </div>
-    <h3 style="color:${hex}">${stage.title}</h3>
+    <h3 style="color:${hex}">${getDisplayStageTitle(stage)}</h3>
     <p>${stage.desc}</p>
   `;
 }
