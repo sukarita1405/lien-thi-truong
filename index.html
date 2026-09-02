@@ -504,6 +504,7 @@
     font-size:11.5px;
   }
   .sc-prob-row.no-id{grid-template-columns:1fr 110px 38px;}
+  .sc-prob-row.two-col{grid-template-columns:1fr auto;}
   .sc-prob-row.top{
     font-weight:700;
     background:rgba(200,163,90,0.10);
@@ -1368,6 +1369,28 @@
     line-height:1.6;
     margin:8px 0 16px;
   }
+  .structural-badge{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    font-weight:700;
+    letter-spacing:0.03em;
+    padding:2px 7px;
+    border-radius:5px;
+    margin-right:6px;
+    vertical-align:middle;
+    white-space:nowrap;
+  }
+  .structural-badge.structural{background:rgba(192,80,58,0.15);color:#C0503A;}
+  .structural-badge.cyclical{background:rgba(237,167,67,0.15);color:#EDA743;}
+  .transmission-channel-card{
+    background:rgba(255,255,255,0.35);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:12px;
+  }
+  .transmission-channel-card:last-child{margin-bottom:0;}
   .macro-tab-row{
     display:flex;
     gap:8px;
@@ -1635,6 +1658,12 @@
     </div>
     <div class="cycle-footnote">Sau Giai đoạn 8, chu kỳ khép lại và giá trái phiếu bắt đầu tạo đáy trở lại cho vòng tiếp theo.</div>
     <div class="sector-rotation" id="sectorRotation"></div>
+  </div>
+
+  <div class="macro-forecast-panel">
+    <div class="panel-title">🔌 3 Kênh Truyền Dẫn Xuống Nền Kinh Tế Thực</div>
+    <div class="macro-forecast-sub">"Hiệu Quả Truyền Dẫn Chính Sách" ở panel Lãi Suất Fed phía trên chỉ cho 1 con số gộp chung — quá thô để trả lời "hậu quả cụ thể nào đang thực sự xảy ra". Tách thành 3 kênh riêng biệt, mỗi kênh dùng đúng tín hiệu liên quan tới nó, không dùng chung 1 công thức cho cả 3.</div>
+    <div id="transmissionChannelsContent"></div>
   </div>
 
   <div class="macro-forecast-panel">
@@ -2493,6 +2522,10 @@ function buildEmergingMarketLens(){
 // Không lặp lại chi tiết từng lăng kính đã nói — chỉ nêu bật: (1) 3 cái tên chế độ đã "nhìn thấy" gì,
 // (2) đúng 1 rủi ro ưu tiên cao nhất (tránh loãng thông điệp bằng cách liệt kê hết mọi cờ rủi ro),
 // (3) độ tin cậy + tỷ trọng tiền mặt cuối cùng, và (4) một dòng nhắc về giới hạn của công cụ.
+// ---- Nhãn Cấu Trúc (chậm, khó đảo ngược) vs Chu Kỳ (nhanh, có thể đảo ngược) ----
+const STRUCTURAL_BADGE = '<span class="structural-badge structural">🔴 CẤU TRÚC</span>';
+const CYCLICAL_BADGE = '<span class="structural-badge cyclical">🟡 CHU KỲ</span>';
+
 function buildFinalSynthesisLens(){
   const summary = computeConfidenceSummary();
   const lv = computeLivermoreVerdict();
@@ -2512,28 +2545,30 @@ function buildFinalSynthesisLens(){
   // Chỉ nêu MỘT rủi ro cao nhất.
   const fedBondsConflict = getFedBondsConflict();
   const hiddenStagflation = getHiddenStagflationWarning();
+  // MỚI — Nhãn Cấu Trúc (🔴 chậm, khó đảo ngược nhanh) vs Chu Kỳ (🟡 nhanh, có thể đảo ngược nếu điều kiện đổi) —
+  // nâng cấp từ việc tự tay phải tách bạch điều này qua nhiều lần đối chiếu app với bài viết vĩ mô thực tế.
   let topRiskText = null;
   if(summary.overrides.length > 0){
     const names = summary.overrides.map(o=>o.es.crisis.name).join(', ');
-    topRiskText = `khủng hoảng an ninh (${names}) đang ghi đè trực tiếp lên bánh xe tài sản — đây là rủi ro ưu tiên số một, vượt trên mọi tín hiệu chu kỳ thông thường`;
+    topRiskText = `${CYCLICAL_BADGE} khủng hoảng an ninh (${names}) đang ghi đè trực tiếp lên bánh xe tài sản — đây là rủi ro ưu tiên số một, vượt trên mọi tín hiệu chu kỳ thông thường`;
   } else if(hiddenStagflation){
-    topRiskText = `bức tranh vĩ mô có thể đang bị đọc sai — ${hiddenStagflation.toLowerCase()}`;
+    topRiskText = `${CYCLICAL_BADGE} bức tranh vĩ mô có thể đang bị đọc sai — ${hiddenStagflation.toLowerCase()}`;
   } else if(risk.dalio && getConfirmedDalioStage() !== 'none'){
     const stageInfo = DALIO_STAGES.find(s=>s.key===getConfirmedDalioStage());
-    topRiskText = `Chu Kỳ Nợ Dài Hạn đang ở giai đoạn "${stageInfo.label}" — rủi ro cấu trúc nền tảng, không phải nhiễu ngắn hạn`;
+    topRiskText = `${STRUCTURAL_BADGE} Chu Kỳ Nợ Dài Hạn đang ở giai đoạn "${stageInfo.label}" — rủi ro cấu trúc nền tảng, không phải nhiễu ngắn hạn`;
   } else if(risk.dalio && debtGdpLevel === 'above'){
-    topRiskText = `Nợ/GDP đang cao hơn trung bình 10 năm — nền tảng cấu trúc vốn đã mong manh, khuếch đại mọi tín hiệu ngắn hạn khác`;
+    topRiskText = `${STRUCTURAL_BADGE} Nợ/GDP đang cao hơn trung bình 10 năm — nền tảng cấu trúc vốn đã mong manh, khuếch đại mọi tín hiệu ngắn hạn khác`;
   } else if(risk.yieldCurve){
     const yc = getYieldCurveStatus();
-    topRiskText = `Đường Cong Lợi Suất đảo ngược sâu (${yc.spread>=0?'+':''}${yc.spread} điểm %) — tín hiệu cảnh báo suy thoái kinh điển`;
+    topRiskText = `${STRUCTURAL_BADGE} Đường Cong Lợi Suất đảo ngược sâu (${yc.spread>=0?'+':''}${yc.spread} điểm %) — tín hiệu cảnh báo suy thoái kinh điển`;
   } else if(fedBondsConflict){
-    topRiskText = `Fed và Giá Trái Phiếu Mỹ đang mâu thuẫn nhau (${fedBondsConflict.toLowerCase()})`;
+    topRiskText = `${STRUCTURAL_BADGE} Fed và Giá Trái Phiếu Mỹ đang mâu thuẫn nhau (${fedBondsConflict.toLowerCase()})`;
   } else if(risk.dusk){
-    topRiskText = `Hàng hóa đang tăng do Chi Phí Đẩy (dầu/nguồn cung) — dấu hiệu "hoàng hôn" của lạm phát chi phí đẩy, đáng theo dõi biên lợi nhuận doanh nghiệp`;
+    topRiskText = `${CYCLICAL_BADGE} Hàng hóa đang tăng do Chi Phí Đẩy (dầu/nguồn cung) — dấu hiệu "hoàng hôn" của lạm phát chi phí đẩy, đáng theo dõi biên lợi nhuận doanh nghiệp`;
   } else if(risk.vn){
-    topRiskText = `Thị trường mới nổi (Việt Nam) đang chịu áp lực riêng biệt từ chênh lệch lãi suất SBV-Fed hoặc truyền dẫn tín dụng nội địa yếu`;
+    topRiskText = `${CYCLICAL_BADGE} Thị trường mới nổi (Việt Nam) đang chịu áp lực riêng biệt từ chênh lệch lãi suất SBV-Fed hoặc truyền dẫn tín dụng nội địa yếu`;
   } else if(conflict){
-    topRiskText = `Fed và Dollar Smile đang mâu thuẫn nhau về hướng USD — thường là dấu hiệu bối cảnh đang chuyển pha chứ chưa ổn định`;
+    topRiskText = `${CYCLICAL_BADGE} Fed và Dollar Smile đang mâu thuẫn nhau về hướng USD — thường là dấu hiệu bối cảnh đang chuyển pha chứ chưa ổn định`;
   }
 
   const cashColor = cash.pct >= 60 ? '#C0503A' : (cash.pct >= 35 ? '#EDA743' : '#5F8E54');
@@ -2746,7 +2781,13 @@ function computeDebtCycleProbabilities(){
   if(acuteFlightToQuality) add('khung_hoang_no', 4, 'Trái Phiếu Mỹ đang là nơi trú ẩn trong khi Cổ Phiếu đang Giảm chủ động — chữ ký kinh điển của một cuộc khủng hoảng cấp tính (kiểu GFC 2008/COVID 2020), khác hẳn một đáy chu kỳ tăng trưởng bình thường.');
   if(yc && yc.band === 'deep_inversion') add('khung_hoang_no', 2, 'Đường Cong Lợi Suất đảo ngược sâu — tín hiệu suy thoái/khủng hoảng kinh điển.');
   if(fedCycle === 'cutting' && strength && strength.label === 'YẾU') add('khung_hoang_no', 3, 'Fed đang Giảm lãi suất nhưng truyền dẫn tín dụng YẾU — đúng dấu hiệu "đẩy dây" (pushing on a string) mà Dalio dùng để nhận diện khủng hoảng nợ.');
-  if(fedCycle === 'cutting' && state.bonds === -1) add('khung_hoang_no', 2, 'Fed đang Giảm lãi suất nhưng Giá Trái Phiếu Mỹ vẫn Giảm (lợi suất vẫn tăng) — thị trường trái phiếu đang không tin vào chính sách của Fed, đúng tinh thần "bond vigilante" mà Dalio cảnh báo trong Changing World Order.');
+  if(fedCycle === 'cutting' && state.bonds === -1){
+    // MỚI — Đa Quốc Gia Đồng Bộ: nếu đã xác nhận đây KHÔNG phải hiện tượng riêng của Mỹ mà nhiều nước cùng
+    // chứng kiến lợi suất tăng đồng loạt, bằng chứng "bond vigilante" trở nên mạnh hơn hẳn — loại trừ khả năng
+    // đây chỉ là nhiễu/đặc thù chính sách nội bộ Mỹ, gợi ý một áp lực cấu trúc mang tính hệ thống hơn.
+    const syncTag = globalYieldSync === 'yes' ? ' Đã xác nhận đây là hiện tượng ĐA QUỐC GIA đồng bộ, không chỉ riêng Mỹ — càng củng cố đây là áp lực cấu trúc mang tính hệ thống, không phải nhiễu nội bộ.' : '';
+    add('khung_hoang_no', globalYieldSync === 'yes' ? 4 : 2, `Fed đang Giảm lãi suất nhưng Giá Trái Phiếu Mỹ vẫn Giảm (lợi suất vẫn tăng) — thị trường trái phiếu đang không tin vào chính sách của Fed, đúng tinh thần "bond vigilante" mà Dalio cảnh báo trong Changing World Order.${syncTag}`);
+  }
   if(debtGdpLevel === 'above') add('khung_hoang_no', 1, 'Nợ/GDP đang cao hơn trung bình — nền tảng mong manh, dễ vỡ hơn khi có cú sốc.');
   if(overridesActive) add('khung_hoang_no', 1, 'Đang có khủng hoảng an ninh được kích hoạt — cú sốc bên ngoài có thể châm ngòi hoặc khuếch đại một cuộc khủng hoảng nợ.');
 
@@ -2832,7 +2873,7 @@ function renderDalioProbReadout(){
   // Không còn nút "Áp dụng" — giai đoạn được XÁC NHẬN TỰ ĐỘNG khi cách biệt với giai đoạn nhì ≥ 8 điểm % (cùng
   // ngưỡng dùng ở Sector Rotation). Nếu cách biệt hẹp hơn, hiển thị rõ "chưa đủ rõ ràng" thay vì giả vờ chắc chắn.
   const confirmBadge = confirmedStage !== 'none'
-    ? `<div class="sc-prob-row top" style="margin-top:6px;background:${topHex}22"><span class="sc-prob-label" style="color:${topHex}">✓ ĐÃ XÁC NHẬN TỰ ĐỘNG: ${topInfo.label}</span><span class="sc-prob-pct" style="color:${topHex}">cách biệt +${gap} điểm %</span></div>`
+    ? `<div class="sc-prob-row two-col top" style="margin-top:6px;background:${topHex}22"><span class="sc-prob-label" style="color:${topHex}">✓ ĐÃ XÁC NHẬN TỰ ĐỘNG: ${topInfo.label}</span><span class="sc-prob-pct" style="color:${topHex}">cách biệt +${gap} điểm %</span></div>`
     : `<div class="sc-prob-conflict">⚠ Chưa đủ rõ ràng để xác nhận — "${topInfo.label}" (${pct[topKey]}%) chỉ nhỉnh hơn giai đoạn nhì đúng ${gap} điểm % (dưới ngưỡng 8). Toàn bộ cờ rủi ro liên quan tạm coi như "Chưa Xác Nhận" cho tới khi cách biệt rõ ràng hơn.</div>`;
 
   // Khung thời gian dự kiến — quy đổi từ chính khung "50-75 năm cho 6 giai đoạn" app đã tự nói khi mô tả Chu Kỳ
@@ -3763,6 +3804,7 @@ function render(){
   drawCycle();
   renderStageDetail();
   renderSectorRotation();
+  renderTransmissionChannels();
   renderMacroForecastPanel();
 }
 
@@ -4146,6 +4188,15 @@ const SHORT_STAGE_SIGNATURE = {
 // chuyển xác suất từ giai đoạn "vừa đảo chiều" sang các giai đoạn XA HƠN trong chiều đang đi.
 let bondTrendMaturity = 'unknown'; // 'fresh' (mới đảo chiều) | 'extended' (đã kéo dài/cực đoan) | 'unknown'
 
+// ---- Đa Quốc Gia Đồng Bộ — nâng cấp từ đối chiếu video "Kỷ Nguyên Vốn Đắt Đỏ" (Mỹ+Đức+Anh+Nhật cùng tăng lợi
+// suất đồng loạt). Tự xác nhận tay (app không có dữ liệu quốc tế sống) — khi bật, một mâu thuẫn Fed↔Trái Phiếu
+// đơn lẻ của MỘT quốc gia trở thành bằng chứng mạnh hơn nhiều, vì loại trừ khả năng đây chỉ là nhiễu nội bộ Mỹ.
+let globalYieldSync = 'unknown'; // 'yes' | 'no' | 'unknown'
+function setGlobalYieldSync(key){
+  globalYieldSync = (globalYieldSync === key) ? 'unknown' : key;
+  fullRender();
+}
+
 function setBondTrendMaturity(key){
   bondTrendMaturity = (bondTrendMaturity === key) ? 'unknown' : key;
   fullRender();
@@ -4393,7 +4444,7 @@ function renderReversalImminence(){
     <div class="sc-prob-header">
       <span class="sc-prob-title">🔄 Xác Suất Sắp Đảo Chiều — Giai đoạn ${ri.topStage.id} (${getDisplayStageTitle(ri.topStage)}) sắp nhường chỗ cho Giai đoạn ${ri.nextStage.id} (${getDisplayStageTitle(ri.nextStage)})?</span>
     </div>
-    <div class="sc-prob-row top" style="background:${HEXES[ri.topKey]}22">
+    <div class="sc-prob-row two-col top" style="background:${HEXES[ri.topKey]}22">
       <span class="sc-prob-label" style="color:${HEXES[ri.topKey]}">⏱️ Khung thời gian dự kiến</span>
       <span class="sc-prob-pct" style="color:${HEXES[ri.topKey]};font-size:13px">${ri.timeframe.range}</span>
     </div>
@@ -4426,8 +4477,18 @@ function renderShortCycleProbReadout(){
   const topStage = STAGES.find(s=>s.id===topId);
   const topHex = ASSET_HEX[topStage.assetKey];
 
+  const syncRow = fedBondsConflict ? `
+    <div style="margin-top:10px">
+      <div class="stocks-usd-axis-label" style="margin-bottom:4px">ĐÂY CÓ PHẢI HIỆN TƯỢNG TOÀN CẦU, KHÔNG CHỈ RIÊNG MỸ? (tự xác nhận — app không có dữ liệu quốc tế sống)</div>
+      <div class="smile-ctx-row">
+        <button class="smile-ctx-btn" data-sync="yes" style="${globalYieldSync==='yes'?'background:#C0503A;color:#2B1B10;border-color:#C0503A':'color:#C0503A;border-color:#C0503A55'}">Có — lợi suất nhiều nước cùng tăng</button>
+        <button class="smile-ctx-btn" data-sync="no" style="${globalYieldSync==='no'?'background:#5F8E54;color:#2B1B10;border-color:#5F8E54':'color:#5F8E54;border-color:#5F8E5455'}">Không — chỉ riêng Mỹ</button>
+      </div>
+      ${globalYieldSync==='yes' ? '<div class="sc-prob-caveat" style="margin-top:6px">✓ Đã xác nhận đồng bộ toàn cầu — bằng chứng Khủng Hoảng Nợ trong bảng Chu Kỳ Dài Hạn được cộng thêm điểm, vì loại trừ khả năng đây chỉ là nhiễu nội bộ Mỹ.</div>' : ''}
+    </div>` : '';
+
   const conflictBanner = fedBondsConflict
-    ? `<div class="sc-prob-conflict">⚠ <b>Mâu thuẫn Fed ↔ Trái Phiếu:</b> ${fedBondsConflict} Vì mâu thuẫn này, tilt tự động theo chu kỳ Fed đã được TẮT cho lần tính này — xác suất bên dưới chỉ còn dựa thuần vào chữ ký 3 tài sản (Trái Phiếu/Cổ Phiếu/Hàng Hóa), không bị pha loãng bởi giả định "Fed đáng lẽ phải kéo Trái Phiếu theo hướng nào".</div>`
+    ? `<div class="sc-prob-conflict">⚠ <b>Mâu thuẫn Fed ↔ Trái Phiếu:</b> ${fedBondsConflict} Vì mâu thuẫn này, tilt tự động theo chu kỳ Fed đã được TẮT cho lần tính này — xác suất bên dưới chỉ còn dựa thuần vào chữ ký 3 tài sản (Trái Phiếu/Cổ Phiếu/Hàng Hóa), không bị pha loãng bởi giả định "Fed đáng lẽ phải kéo Trái Phiếu theo hướng nào".${syncRow}</div>`
     : '';
 
   const MATURITY_BTNS = [
@@ -4466,6 +4527,9 @@ function renderShortCycleProbReadout(){
       btn.addEventListener('click', ()=> setBondTrendMaturity(btn.dataset.maturity));
     });
   }
+  el.querySelectorAll('[data-sync]').forEach(btn=>{
+    btn.addEventListener('click', ()=> setGlobalYieldSync(btn.dataset.sync));
+  });
   document.getElementById('jumpTopStageBtn').addEventListener('click', ()=>{
     stopPlay();
     selectedStage = topId;
@@ -4808,6 +4872,128 @@ function renderOilGoldPanel(){
     });
   });
 }
+
+// =====================================================================================
+// 3 KÊNH TRUYỀN DẪN XUỐNG NỀN KINH TẾ THỰC — nâng cấp từ phân tích đối chiếu 3 bài viết vĩ mô thực tế
+// (video Vàng/Đô La, video Kỷ Nguyên Vốn Đắt Đỏ, bài viết xả trái phiếu toàn cầu). Cả 3 nội dung đều liệt kê
+// hậu quả LAN TỎA cụ thể mà getTransmissionStrength() cũ (1 con số gộp) không phân biệt được. Mỗi kênh dùng
+// đúng tín hiệu ĐÃ CÓ SẴN liên quan tới nó — không thêm input mới, chỉ tổ chức lại dữ liệu đã có theo đúng câu
+// hỏi thực tế: "hậu quả X có đang thực sự xảy ra hay chưa".
+// =====================================================================================
+
+// ---- Kênh A — Định Giá Tài Sản Dài Hạn (tech/growth stock, deal IPO, phát hành riêng lẻ) ----
+function computeLongDurationPressure(){
+  const w = { thap:1, trung_binh:1, cao:1 };
+  const reasons = { thap:[], trung_binh:[], cao:[] };
+  function add(k,p,r){ w[k]+=p; if(r) reasons[k].push(r); }
+
+  if(state.bonds === -1){
+    if(bondTrendMaturity === 'secular') add('cao', 4, 'Trái Phiếu đã Giảm vượt quá 1 chu kỳ ngắn hạn — áp lực chiết khấu dòng tiền lên tài sản dài hạn (tech, growth stock, deal IPO/phát hành riêng lẻ) đã tích lũy đủ lâu để phản ánh vào định giá thực tế, không còn là rủi ro giả định.');
+    else if(bondTrendMaturity === 'extended') add('cao', 2, 'Trái Phiếu Giảm đã kéo dài — áp lực định giá tài sản dài hạn đang gia tăng.');
+    else add('trung_binh', 1, 'Trái Phiếu vừa mới Giảm — áp lực định giá tài sản dài hạn mới bắt đầu, chưa tích lũy đủ lâu để chắc chắn.');
+  } else {
+    add('thap', 2, 'Trái Phiếu không trong xu hướng Giảm — chưa có áp lực chiết khấu đáng kể lên tài sản dài hạn.');
+  }
+
+  const yc = getYieldCurveStatus();
+  if(yc && yc.band === 'deep_inversion') add('cao', 2, 'Đường Cong Lợi Suất đảo ngược sâu — lợi suất dài hạn đã đủ cao để gây áp lực chiết khấu rõ rệt lên định giá.');
+
+  if(getFedBondsConflict()) add('cao', 1, 'Mâu thuẫn Fed↔Trái Phiếu — thị trường tự đẩy lợi suất dài hạn lên bất chấp chính sách, khuếch đại áp lực định giá lên đúng nhóm tài sản này.');
+
+  const total = Object.values(w).reduce((a,b)=>a+b,0);
+  const pctRaw = {}; Object.keys(w).forEach(k=>pctRaw[k]=w[k]/total*100);
+  const pct = roundToHundred(pctRaw);
+  const ranked = Object.keys(w).sort((a,b)=>pct[b]-pct[a]);
+  return { pct, ranked, reasons, topKey: ranked[0] };
+}
+
+// ---- Kênh B — Vốn Ngân Hàng/Bảo Hiểm/Quỹ Hưu Trí (mark-to-market, an toàn vốn) ----
+function computeBankCapitalPressure(){
+  const w = { thap:1, trung_binh:1, cao:1 };
+  const reasons = { thap:[], trung_binh:[], cao:[] };
+  function add(k,p,r){ w[k]+=p; if(r) reasons[k].push(r); }
+
+  if(state.bonds === -1){
+    if(bondTrendMaturity === 'secular') add('cao', 4, 'Trái Phiếu Giảm vượt quá 1 chu kỳ — khoản lỗ chưa hiện thực hóa (mark-to-market) trên sổ sách ngân hàng/bảo hiểm/quỹ hưu trí đã tích lũy nhiều năm, khó còn coi là "tạm thời".');
+    else if(bondTrendMaturity === 'extended') add('trung_binh', 2, 'Trái Phiếu Giảm kéo dài — khoản lỗ mark-to-market đang tích lũy, cần theo dõi thêm.');
+    else add('thap', 1, 'Trái Phiếu vừa mới Giảm — khoản lỗ mark-to-market còn nhỏ, chưa đủ để gây áp lực an toàn vốn rõ rệt.');
+  } else {
+    add('thap', 2, 'Trái Phiếu không trong xu hướng Giảm — chưa có áp lực mark-to-market lên bảng cân đối kế toán.');
+  }
+
+  const strength = getTransmissionStrength();
+  if(strength && strength.label === 'YẾU') add('cao', 2, 'Truyền dẫn tín dụng YẾU — dấu hiệu hệ thống tài chính đang gặp khó khăn hấp thụ chính sách, khớp với giả thuyết bị siết vốn buộc giữ thêm thanh khoản.');
+  else if(strength && strength.label === 'MẠNH') add('thap', 1, 'Truyền dẫn tín dụng MẠNH — hệ thống tài chính vẫn vận hành thông suốt, chưa có dấu hiệu tắc nghẽn do siết vốn.');
+
+  const total = Object.values(w).reduce((a,b)=>a+b,0);
+  const pctRaw = {}; Object.keys(w).forEach(k=>pctRaw[k]=w[k]/total*100);
+  const pct = roundToHundred(pctRaw);
+  const ranked = Object.keys(w).sort((a,b)=>pct[b]-pct[a]);
+  return { pct, ranked, reasons, topKey: ranked[0] };
+}
+
+// ---- Kênh C — Chi Phí Vay Tiêu Dùng (lãi vay mua nhà/xe cố định dài hạn) ----
+function computeConsumerBorrowingPressure(){
+  const w = { thap:1, trung_binh:1, cao:1 };
+  const reasons = { thap:[], trung_binh:[], cao:[] };
+  function add(k,p,r){ w[k]+=p; if(r) reasons[k].push(r); }
+
+  if(creditInputs.treasury10y !== null){
+    const y = creditInputs.treasury10y;
+    if(y > 4.5) add('cao', 4, `Lợi suất 10 năm hiện ở mức ${y}% — cao, kéo lãi vay mua nhà/xe cố định dài hạn lên đắt đỏ tương ứng (lợi suất 10 năm là benchmark chính, bất kể Fed đang Tăng hay Giảm lãi suất điều hành ngắn hạn).`);
+    else if(y > 3.5) add('trung_binh', 2, `Lợi suất 10 năm hiện ở mức ${y}% — vùng trung bình, lãi vay tiêu dùng không quá rẻ cũng không quá đắt.`);
+    else add('thap', 2, `Lợi suất 10 năm hiện ở mức ${y}% — thấp, lãi vay tiêu dùng dài hạn vẫn còn dễ chịu.`);
+  } else {
+    w.trung_binh += 1;
+    reasons.trung_binh.push('Chưa nhập Lợi Suất 10 Năm ở panel Tín Dụng phía trên — dùng mức mặc định không nghiêng hẳn về phía nào, nhập số liệu thật để có kết quả chính xác hơn.');
+  }
+
+  if(state.bonds === -1 && bondTrendMaturity === 'secular') add('cao', 1, 'Xu hướng Giảm giá Trái Phiếu đã kéo dài nhiều năm — lãi vay tiêu dùng khó có khả năng hạ nhiệt nhanh trong ngắn hạn.');
+
+  const total = Object.values(w).reduce((a,b)=>a+b,0);
+  const pctRaw = {}; Object.keys(w).forEach(k=>pctRaw[k]=w[k]/total*100);
+  const pct = roundToHundred(pctRaw);
+  const ranked = Object.keys(w).sort((a,b)=>pct[b]-pct[a]);
+  return { pct, ranked, reasons, topKey: ranked[0] };
+}
+
+const TRANSMISSION_CHANNELS = [
+  { key:'longDuration', label:'Định Giá Tài Sản Dài Hạn', icon:'📉', compute: computeLongDurationPressure, desc:'Tech/growth stock, deal IPO, phát hành riêng lẻ — nhạy cảm nhất với lãi suất chiết khấu dài hạn.' },
+  { key:'bankCapital', label:'Vốn Ngân Hàng/Bảo Hiểm/Quỹ Hưu Trí', icon:'🏦', compute: computeBankCapitalPressure, desc:'Mark-to-market trái phiếu nắm giữ, tỷ lệ an toàn vốn, khả năng cấp tín dụng ra thị trường.' },
+  { key:'consumerBorrow', label:'Chi Phí Vay Tiêu Dùng', icon:'🏠', compute: computeConsumerBorrowingPressure, desc:'Lãi vay mua nhà/xe cố định dài hạn — theo sát Lợi Suất 10 Năm hơn là lãi suất điều hành Fed.' },
+];
+
+function renderTransmissionChannels(){
+  const el = document.getElementById('transmissionChannelsContent');
+  if(!el) return;
+
+  const LABELS = { thap:'Thấp', trung_binh:'Trung Bình', cao:'Cao' };
+  const HEXES = { thap:'#5F8E54', trung_binh:'#EDA743', cao:'#C0503A' };
+
+  el.innerHTML = TRANSMISSION_CHANNELS.map(ch=>{
+    const r = ch.compute();
+    const rows = r.ranked.map(k=>{
+      const isTop = k === r.topKey;
+      return `<div class="sc-prob-row no-id${isTop?' top':''}">
+        <span class="sc-prob-label" style="color:${HEXES[k]}">${LABELS[k]}</span>
+        <div class="sc-prob-bar-wrap"><div class="sc-prob-bar-fill" style="width:${r.pct[k]}%;background:${HEXES[k]}"></div></div>
+        <span class="sc-prob-pct">${r.pct[k]}%</span>
+      </div>`;
+    }).join('');
+    const topReasons = r.reasons[r.topKey];
+    return `<div class="transmission-channel-card">
+      <div class="sc-prob-header">
+        <span class="sc-prob-title">${ch.icon} ${ch.label}</span>
+        <span class="stage-pill" style="color:${HEXES[r.topKey]};border-color:${HEXES[r.topKey]}66">${LABELS[r.topKey]}: ${r.pct[r.topKey]}%</span>
+      </div>
+      <div class="stocks-usd-sub" style="margin:2px 0 8px">${ch.desc}</div>
+      ${rows}
+      <div class="sc-prob-caveat">${topReasons.length ? topReasons.join(' ') : 'Chưa có tín hiệu nào nổi bật.'}</div>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================================================
 
 // ---- (C) Xác Suất CPI/Lạm Phát — 3 lớp đã có sẵn: Hàng Hóa+Nguyên Nhân, USD (kênh nhập khẩu, trọng số nhẹ vì
 // thực nghiệm cho thấy chỉ ~10% giỏ hàng lõi liên quan hàng nhập khẩu), Mâu Thuẫn Fed↔Trái Phiếu (kỳ vọng lạm
