@@ -1644,6 +1644,12 @@
     <div class="dalio-note" id="dalioNote"></div>
   </div>
 
+  <div class="macro-forecast-panel" style="border:2px solid #C0503A44">
+    <div class="panel-title">🌊 Chế Độ Tương Quan Thị Trường — Murphy Tuần Tự hay Dalio Đồng Loạt?</div>
+    <div class="macro-forecast-sub">Bánh xe 8 bước Murphy giả định dòng tiền luân chuyển tuần tự (tài sản này giảm dọn đường cho tài sản kia tăng). Nhưng khi 1 trong 4 điều kiện dưới đây xảy ra (USD là "nước" chi phối chung chứ không phải 1 "thuyền" luân phiên; NHTW bẻ cong thị trường bằng QE; giao dịch thuật toán triệt tiêu độ trễ; hoặc Đình Lạm cuối Chu Kỳ Nợ Dài Hạn), mọi tài sản có xu hướng cùng tăng hoặc cùng giảm — phá vỡ toàn bộ logic luân phiên bên dưới.</div>
+    <div id="correlationRegimeContent"></div>
+  </div>
+
   <div class="cycle-panel">
     <div class="cycle-header">
       <div class="panel-title" style="margin-bottom:0">Chu Kỳ Liên Thị Trường — 8 Giai Đoạn (Chu Kỳ Nợ Ngắn Hạn)</div>
@@ -3805,6 +3811,7 @@ function render(){
   renderStageDetail();
   renderSectorRotation();
   renderTransmissionChannels();
+  renderCorrelationRegimePanel();
   renderMacroForecastPanel();
 }
 
@@ -4153,11 +4160,14 @@ const CYCLE_R = 168;
 // nhìn đầu tiên, dù xác suất bên dưới đã tính đúng. Trước đây chỉ thêm cảnh báo Ở CẠNH — không đủ, vì tiêu đề
 // chính vẫn đứng yên. Giờ đổi thẳng CHỮ hiển thị cho khớp đúng thực tế đang diễn ra, không chỉ thêm ghi chú.
 function getDisplayStageTitle(stage){
-  if(stage.id === 5){
+  // SỬA LỖI (phát hiện qua phản hồi thực tế): trước đây chỉ kiểm tra bondTrendMaturity, QUÊN kiểm tra state.bonds
+  // đang thực sự đi hướng nào — khiến bấm vào Giai đoạn 1 vẫn hiện "Đã Tạo Đáy — Đang Tăng" dù Trái Phiếu thực
+  // tế đang GIẢM, mâu thuẫn trực tiếp với chính nhãn Giai đoạn 5 đang hiện đúng lúc đó trên cùng 1 vòng tròn.
+  if(stage.id === 5 && state.bonds === -1){
     if(bondTrendMaturity === 'secular') return 'Giá Trái Phiếu ĐÃ Tạo Đỉnh Từ Lâu — Đang Giảm Kéo Dài';
     if(bondTrendMaturity === 'extended') return 'Giá Trái Phiếu Đã Tạo Đỉnh — Đang Giảm';
   }
-  if(stage.id === 1){
+  if(stage.id === 1 && state.bonds === 1){
     if(bondTrendMaturity === 'secular') return 'Giá Trái Phiếu ĐÃ Tạo Đáy Từ Lâu — Đang Tăng Kéo Dài';
     if(bondTrendMaturity === 'extended') return 'Giá Trái Phiếu Đã Tạo Đáy — Đang Tăng';
   }
@@ -4186,6 +4196,10 @@ const SHORT_STAGE_SIGNATURE = {
 // gán CÙNG một giai đoạn — đây chính là nguồn gốc mâu thuẫn đã được chỉ ra: gọi một đợt bán tháo trái phiếu kéo
 // dài là "Tạo Đỉnh" trong khi thực tế đang ở gần "Tạo Đáy" hơn nhiều. Biến này cho người dùng tự xác nhận, dịch
 // chuyển xác suất từ giai đoạn "vừa đảo chiều" sang các giai đoạn XA HƠN trong chiều đang đi.
+// Trung bình 1 chu kỳ ngắn hạn hoàn chỉnh (8 giai đoạn, 5-8 năm = 60-96 tháng) — dùng chung cho cả công thức tính
+// (computeShortCycleProbabilities) lẫn lời văn giải thích (renderShortCycleProbReadout), tránh khai báo trùng lặp.
+const FULL_CYCLE_AVG_MONTHS = 78;
+
 let bondTrendMaturity = 'unknown'; // 'fresh' (mới đảo chiều) | 'extended' (đã kéo dài/cực đoan) | 'unknown'
 
 // ---- Đa Quốc Gia Đồng Bộ — nâng cấp từ đối chiếu video "Kỷ Nguyên Vốn Đắt Đỏ" (Mỹ+Đức+Anh+Nhật cùng tăng lợi
@@ -4194,6 +4208,174 @@ let bondTrendMaturity = 'unknown'; // 'fresh' (mới đảo chiều) | 'extended
 let globalYieldSync = 'unknown'; // 'yes' | 'no' | 'unknown'
 function setGlobalYieldSync(key){
   globalYieldSync = (globalYieldSync === key) ? 'unknown' : key;
+  fullRender();
+}
+
+// =====================================================================================
+// CHẾ ĐỘ TƯƠNG QUAN THỊ TRƯỜNG — lớp mới nằm TRÊN bánh xe 8 bước Murphy, nâng cấp từ phản biện kiến trúc thực
+// tế: cả 4 điều kiện dưới đây cùng chỉ về MỘT hiện tượng gốc — khi 1 lực chi phối duy nhất (thanh khoản USD,
+// bàn tay NHTW, thuật toán risk-on/off, hoặc lạm phát đình đốn cuối chu kỳ nợ) áp đảo, thị trường chuyển từ
+// "luân chuyển tuần tự" (Murphy giả định) sang "tương quan đồng loạt" — mọi tài sản cùng tăng hoặc cùng giảm,
+// phá vỡ quy trình "tài sản này giảm dọn đường cho tài sản kia tăng".
+// =====================================================================================
+
+// Công tắc 1 — USD Là Nước, Không Phải Thuyền (Dalio): khủng hoảng thanh khoản USD toàn cầu, không phải 1 trong
+// 4 tài sản luân phiên mà là bàn tay chi phối cả 4.
+let usdFundingStress = 'unknown'; // 'yes' | 'no' | 'unknown'
+function setUsdFundingStress(key){
+  usdFundingStress = (usdFundingStress === key) ? 'unknown' : key;
+  fullRender();
+}
+
+// Công tắc 2 — QE Bẻ Cong Thị Trường: NHTW bơm tiền mua Trái Phiếu trực tiếp, ép giá tăng nhân tạo bất chấp
+// lạm phát/tăng trưởng — chỉ thực sự có bằng chứng khi Cổ Phiếu VÀ Trái Phiếu CÙNG Tăng (không luân phiên).
+let activeQE = 'unknown'; // 'yes' | 'no' | 'unknown'
+function setActiveQE(key){
+  activeQE = (activeQE === key) ? 'unknown' : key;
+  fullRender();
+}
+
+// Công tắc 3 — Risk-On/Risk-Off Nhị Phân: giao dịch thuật toán/ETF/tiền rẻ triệt tiêu độ trễ cổ điển giữa các
+// tài sản — thị trường chuyển sang trạng thái nhị phân, các tài sản chạm vạch đích cùng lúc.
+let riskOnOffRegime = 'unknown'; // 'yes' | 'no' | 'unknown'
+function setRiskOnOffRegime(key){
+  riskOnOffRegime = (riskOnOffRegime === key) ? 'unknown' : key;
+  fullRender();
+}
+
+// Công tắc 4 — Đình Lạm Cuối Chu Kỳ Nợ Dài Hạn: KHÔNG cần input mới, tự động nối từ getConfirmedDalioStage()
+// đã có sẵn — khi Dalio xác nhận "Khủng Hoảng Nợ", đây tự động là 1 trong các điều kiện kích hoạt.
+
+function computeCorrelationRegime(){
+  const triggers = [];
+
+  if(usdFundingStress === 'yes'){
+    triggers.push({ key:'usd_water', label:'USD Là Nước — Khủng Hoảng Thanh Khoản',
+      why:'Khi hệ thống kẹt thanh khoản USD, mọi tài sản (Cổ Phiếu, Trái Phiếu, Hàng Hóa, kể cả Vàng lúc đầu) đều có thể bị bán để đổi lấy tiền mặt cùng lúc — phá vỡ quy trình luân chuyển tuần tự của Murphy, vì USD lúc này là "nước" chi phối chung, không phải 1 trong 4 "thuyền".' });
+  }
+  if(activeQE === 'yes' && state.bonds === 1 && state.stocks === 1){
+    triggers.push({ key:'qe_distortion', label:'QE Đang Bẻ Cong Thị Trường',
+      why:'NHTW đang bơm tiền mua Trái Phiếu trực tiếp, ép giá Trái Phiếu tăng nhân tạo bất chấp lạm phát/tăng trưởng — Cổ Phiếu và Trái Phiếu cùng tăng vọt, vô hiệu hóa các mốc tạo đỉnh/đáy luân phiên của Murphy (giả định thị trường tự do thuần túy).' });
+  }
+  if(riskOnOffRegime === 'yes'){
+    triggers.push({ key:'risk_binary', label:'Risk-On/Risk-Off Nhị Phân',
+      why:'Giao dịch thuật toán, ETF, và tiền rẻ đã triệt tiêu độ trễ cổ điển giữa các tài sản — thị trường chuyển sang trạng thái nhị phân "mua mọi thứ rủi ro" hoặc "bán mọi thứ rủi ro", các tài sản chạm vạch đích cùng lúc thay vì luân phiên như Murphy giả định.' });
+  }
+  const confirmedStage = getConfirmedDalioStage();
+  if(confirmedStage === 'khung_hoang_no'){
+    triggers.push({ key:'debt_cycle_end', label:'Cuối Chu Kỳ Nợ Dài Hạn — Đình Lạm',
+      why:'Chu Kỳ Nợ Dài Hạn đã được xác nhận ở giai đoạn Khủng Hoảng Nợ — quốc gia cạn kiệt công cụ tiền tệ, lạm phát đình đốn có thể xuất hiện, cả Trái Phiếu lẫn Cổ Phiếu đều bị bán tháo, đánh sập lý thuyết "tài sản này giảm dọn đường cho tài sản kia tăng".' });
+  }
+
+  return { active: triggers.length > 0, triggers, mode: triggers.length > 0 ? 'correlated' : 'sequential' };
+}
+
+// Khi Chế Độ Tương Quan Đồng Loạt bật, câu hỏi hữu ích không còn là "giai đoạn nào đang dẫn đầu" (bánh xe 8
+// bước) mà là "cả thị trường đang cùng bán tháo hay cùng mua gom" — 1 chỉ báo hoàn toàn khác về bản chất.
+function computeCorrelatedMoveProbability(){
+  const w = { ban_thao: 1, mua_gom: 1, phan_hoa: 1 };
+  const reasons = { ban_thao:[], mua_gom:[], phan_hoa:[] };
+  function add(k,p,r){ w[k]+=p; if(r) reasons[k].push(r); }
+
+  const dirs = [state.bonds, state.stocks, state.commodities];
+  const downCount = dirs.filter(d => d === -1).length;
+  const upCount = dirs.filter(d => d === 1).length;
+
+  if(downCount >= 2) add('ban_thao', 3, `${downCount}/3 tài sản chính (Trái Phiếu/Cổ Phiếu/Hàng Hóa) đang Giảm cùng lúc — dấu hiệu bán tháo đồng loạt đã bắt đầu thể hiện trên giá, không phải luân phiên.`);
+  else if(upCount >= 2) add('mua_gom', 3, `${upCount}/3 tài sản chính đang Tăng cùng lúc — dấu hiệu mua gom đồng loạt (risk-on toàn diện) đã bắt đầu thể hiện trên giá, không phải luân phiên.`);
+  else add('phan_hoa', 2, 'Các tài sản hiện chưa đồng pha rõ rệt trên giá — tín hiệu tương quan đồng loạt chưa thể hiện đầy đủ, dù các điều kiện kích hoạt đã được xác nhận.');
+
+  if(usdFundingStress === 'yes') add('ban_thao', 3, 'Khủng hoảng thanh khoản USD đã xác nhận — kịch bản kinh điển là bán tháo đồng loạt để đổi lấy tiền mặt USD, kể cả Vàng ban đầu cũng có thể bị bán (dash for cash).');
+  if(activeQE === 'yes') add('mua_gom', 2, 'NHTW đang bơm tiền trực tiếp qua QE — thanh khoản dư thừa có xu hướng đẩy tài sản rủi ro tăng đồng loạt.');
+  const regime = computeCorrelationRegime();
+  if(regime.triggers.some(t=>t.key==='debt_cycle_end')) add('ban_thao', 2, 'Đình Lạm cuối Chu Kỳ Nợ Dài Hạn — đặc trưng của giai đoạn này là CẢ Trái Phiếu lẫn Cổ Phiếu cùng bị bán tháo, không phải mua gom.');
+
+  const total = Object.values(w).reduce((a,b)=>a+b,0);
+  const pctRaw = {}; Object.keys(w).forEach(k=>pctRaw[k]=w[k]/total*100);
+  const pct = roundToHundred(pctRaw);
+  const ranked = Object.keys(w).sort((a,b)=>pct[b]-pct[a]);
+  return { pct, ranked, reasons, topKey: ranked[0] };
+}
+
+function renderCorrelationRegimePanel(){
+  const el = document.getElementById('correlationRegimeContent');
+  if(!el) return;
+
+  const SWITCHES = [
+    { key:'usdFundingStress', val: usdFundingStress, setter:'setUsdFundingStress', label:'1️⃣ USD Là Nước, Không Phải Thuyền', question:'Đang có khủng hoảng thanh khoản USD toàn cầu (dash for cash)?' },
+    { key:'activeQE', val: activeQE, setter:'setActiveQE', label:'2️⃣ QE Đang Bẻ Cong Thị Trường', question:'NHTW đang bơm tiền mua Trái Phiếu trực tiếp?' },
+    { key:'riskOnOffRegime', val: riskOnOffRegime, setter:'setRiskOnOffRegime', label:'3️⃣ Risk-On/Risk-Off Nhị Phân', question:'Thị trường đang vận động kiểu nhị phân, độ trễ đã biến mất?' },
+  ];
+
+  const switchesHtml = SWITCHES.map(s=>`
+    <div style="margin-bottom:10px">
+      <div class="stocks-usd-axis-label">${s.label}</div>
+      <div class="smile-sub" style="margin:2px 0 6px">${s.question}</div>
+      <div class="smile-ctx-row">
+        <button class="smile-ctx-btn" data-corr-switch="${s.key}" data-corr-val="yes" style="${s.val==='yes'?'background:#C0503A;color:#2B1B10;border-color:#C0503A':'color:#C0503A;border-color:#C0503A55'}">Có</button>
+        <button class="smile-ctx-btn" data-corr-switch="${s.key}" data-corr-val="no" style="${s.val==='no'?'background:#5F8E54;color:#2B1B10;border-color:#5F8E54':'color:#5F8E54;border-color:#5F8E5455'}">Không</button>
+      </div>
+    </div>`).join('');
+
+  const regime = computeCorrelationRegime();
+  const dalioAuto = regime.triggers.find(t=>t.key==='debt_cycle_end');
+
+  let resultHtml;
+  if(regime.active){
+    const cm = computeCorrelatedMoveProbability();
+    const LABELS = { ban_thao:'Bán Tháo Đồng Loạt', mua_gom:'Mua Gom Đồng Loạt', phan_hoa:'Chưa Rõ Ràng' };
+    const HEXES = { ban_thao:'#C0503A', mua_gom:'#5F8E54', phan_hoa:'#EDA743' };
+    const rows = cm.ranked.map(k=>{
+      const isTop = k === cm.topKey;
+      return `<div class="sc-prob-row no-id${isTop?' top':''}">
+        <span class="sc-prob-label" style="color:${HEXES[k]}">${LABELS[k]}</span>
+        <div class="sc-prob-bar-wrap"><div class="sc-prob-bar-fill" style="width:${cm.pct[k]}%;background:${HEXES[k]}"></div></div>
+        <span class="sc-prob-pct">${cm.pct[k]}%</span>
+      </div>`;
+    }).join('');
+    const triggersHtml = regime.triggers.map(t=>`<div class="sc-prob-conflict" style="margin-top:6px">⚠ <b>${t.label}${t.key==='debt_cycle_end'?' (tự động, nối từ Dalio phía trên)':''}:</b> ${t.why}</div>`).join('');
+    resultHtml = `
+      <div class="sc-prob-conflict" style="margin-top:12px;background:rgba(192,80,58,0.12);border-color:#C0503A66">
+        🌊 <b>ĐANG Ở CHẾ ĐỘ TƯƠNG QUAN ĐỒNG LOẠT</b> — bánh xe 8 bước Murphy bên dưới có độ tin cậy THẤP lúc này. ${regime.triggers.length} điều kiện được xác nhận:
+      </div>
+      ${triggersHtml}
+      <div class="sc-prob-header" style="margin-top:12px"><span class="sc-prob-title">Xác Suất Tương Quan Đồng Loạt</span></div>
+      ${rows}
+      <div class="sc-prob-caveat">${cm.reasons[cm.topKey].length ? cm.reasons[cm.topKey].join(' ') : ''}</div>
+    `;
+  } else {
+    resultHtml = `<div class="sc-prob-caveat" style="margin-top:12px">✓ Chưa có điều kiện nào được xác nhận — Chế Độ Luân Chuyển Tuần Tự (bánh xe 8 bước Murphy) vẫn là khung đọc mặc định, đáng tin cậy.${dalioAuto?'':''}</div>`;
+  }
+
+  el.innerHTML = `${switchesHtml}${resultHtml}`;
+
+  el.querySelectorAll('[data-corr-switch]').forEach(btn=>{
+    const setterMap = { usdFundingStress:setUsdFundingStress, activeQE:setActiveQE, riskOnOffRegime:setRiskOnOffRegime };
+    btn.addEventListener('click', ()=> setterMap[btn.dataset.corrSwitch](btn.dataset.corrVal));
+  });
+}
+
+// ---- Số Tháng Cụ Thể — tinh chỉnh thêm cho bondTrendMaturity (phát hiện qua phản hồi thực tế: "Đã Kéo Dài"/
+// "Đã Vượt Quá 1 Chu Kỳ" là 2 mức RẤT THÔ khi thực tế có số liệu chính xác, ví dụ "78 tháng" — con số này tình
+// cờ đúng bằng TRUNG BÌNH của CẢ 1 chu kỳ 8 giai đoạn (5-8 năm = 60-96 tháng, trung bình 78 tháng), không chỉ
+// "vượt quá 1 giai đoạn" mà đã "bằng đúng CẢ 1 vòng tròn" — một bằng chứng mạnh hơn nhiều so với nhãn chung
+// chung. Tùy chọn, không bắt buộc — chỉ tinh chỉnh thêm lời văn, không thay thế 3 nút chọn nhanh.
+let bondTrendMonths = null;
+function updateBondTrendMonths(){
+  const val = parseFloat(document.getElementById('bondTrendMonthsInput').value);
+  bondTrendMonths = isNaN(val) ? null : val;
+  fullRender();
+}
+
+// ---- Vị Trí Giá So Với Vùng Cực Trị Nhiều Năm — SỬA LỖI KIẾN TRÚC (phát hiện qua phản hồi thực tế): trước đây
+// model chỉ theo dõi CHIỀU (tăng/giảm), hoàn toàn không biết giá hiện tại đang ở vùng CAO hay THẤP so với lịch
+// sử — "Tạo Đỉnh" (Giai đoạn 5) ngụ ý giá đang ở vùng CAO, nhưng 1 xu hướng Giảm kéo dài nhiều năm hoàn toàn có
+// thể đẩy giá xuống vùng THẤP nhất nhiều năm (như TLT thực tế) — lúc đó gọi là "Tạo Đỉnh" mâu thuẫn ngay với ý
+// nghĩa tên gọi, bất kể đã dịch chuyển xác suất bao nhiêu. Đây là 1 CHIỀU DỮ LIỆU MỚI, độc lập với chiều và số
+// tháng đã có — không thay thế chúng, mà bổ sung bằng chứng thật để công thức có thể phản ứng đúng.
+let bondPriceLevel = 'unknown'; // 'near_high' | 'near_low' | 'middle' | 'unknown'
+function setBondPriceLevel(key){
+  bondPriceLevel = (bondPriceLevel === key) ? 'unknown' : key;
   fullRender();
 }
 
@@ -4253,15 +4435,52 @@ function computeShortCycleProbabilities(){
   // cụ thể là bước tiếp theo — đúng lỗi đã bị chỉ ra khi thử nghiệm thực tế.
   if(bondTrendMaturity === 'extended' || bondTrendMaturity === 'secular'){
     const isSecular = bondTrendMaturity === 'secular';
-    const shiftFloor = isSecular ? 0.45 : 0.15;
-    const shiftRange = isSecular ? 0.35 : 0.40;
+    let shiftFloor = isSecular ? 0.45 : 0.15;
+    let shiftRange = isSecular ? 0.35 : 0.40;
     const distFloor = isSecular ? 1.0 : 0.3; // secular: phân bổ đều hơn hẳn giữa 6/7/8, không tập trung 1 giai đoạn
+    // SỬA LỖI KIẾN TRÚC (phát hiện qua phản hồi thực tế): trước đây bondTrendMonths CHỈ dùng để sinh văn bản giải
+    // thích, KHÔNG hề nối vào công thức — nhập bao nhiêu tháng cũng ra đúng 1 kết quả. Giờ nối thật: số tháng cụ
+    // thể (nếu có) ghi đè sàn dịch chuyển theo đúng tỷ lệ so với trung bình cả 1 chu kỳ (78 tháng), thay vì chỉ
+    // dùng 2 mức categorical thô.
+    if(bondTrendMonths !== null && bondTrendMonths > 0){
+      const cycleRatio = Math.min(1.5, bondTrendMonths / 78);
+      shiftFloor = Math.max(shiftFloor, 0.15 + 0.55 * Math.min(1, cycleRatio));
+    }
+    // MỚI — Vị Trí Giá So Với Vùng Cực Trị Nhiều Năm: tín hiệu ĐỘC LẬP với chiều/số tháng — nếu giá đang ở vùng
+    // THẤP nhiều năm (khi Trái Phiếu đang Giảm), đây là bằng chứng ủng hộ đang gần Giai đoạn 8 (ngay trước khi
+    // khép vòng về Giai đoạn 1) hơn hẳn so với chỉ suy luận từ thời gian — cộng thẳng vào compat của giai đoạn
+    // đích liên quan, không thay thế yêu cầu xác nhận từ Cổ Phiếu/Hàng Hóa.
+    const priceLevelBonusDown = (bondPriceLevel === 'near_low') ? 1 : 0;
+    const priceLevelBonusUp = (bondPriceLevel === 'near_high') ? 1 : 0;
+    // MỚI — khi số tháng VƯỢT HẲN 1 chu kỳ trung bình (không chỉ bằng), càng vượt càng cộng thêm bằng chứng cho
+    // Giai đoạn 8/2 (gần khép vòng) — tách biệt với việc chỉ nâng sàn dịch chuyển tổng, để số tháng thực sự tạo
+    // ra khác biệt rõ rệt trên % hiển thị, không chỉ bị "nuốt" bởi giới hạn bảo vệ Giai đoạn 5.
+    const monthsOverflowBonus = (bondTrendMonths !== null && bondTrendMonths > 0)
+      ? Math.max(0, Math.min(1.5, (bondTrendMonths / FULL_CYCLE_AVG_MONTHS) - 1))
+      : 0;
+    // MỚI (phát hiện qua phản hồi thực tế): "Chi Phí Đẩy" và "Khủng Hoảng Nợ" đã có sẵn trong app từ lâu nhưng
+    // CHƯA HỀ nối vào công thức chọn giai đoạn — chỉ dùng cho CPI/Cảnh báo Hoàng Hôn/Central Hub. Hàng Hóa tăng
+    // do Chi Phí Đẩy (cú sốc cung, thường ngắn/không bền — đúng tinh thần "hoàng hôn" app đã dùng) là bằng chứng
+    // Hàng Hóa gần kiệt sức hơn Cầu Kéo thật — cộng thêm cho Giai đoạn 8 (Hàng Hóa Tạo Đỉnh). Dalio xác nhận
+    // Khủng Hoảng Nợ về lịch sử thường trùng với các giai đoạn suy thoái nặng cuối chu kỳ ngắn hạn (6-7-8), nên
+    // cũng cộng thêm cho Giai đoạn 8. Cả 2 vẫn chỉ ảnh hưởng compat PHÂN BỔ, không phải compat QUYẾT ĐỊNH LẬT —
+    // đúng nguyên tắc đã cam kết: bằng chứng gián tiếp không được tự mình vượt qua giới hạn bảo vệ dữ liệu sống.
+    const costPushBonus = (commodityCause === 'cost_push' && state.commodities === 1) ? 1 : 0;
+    const debtCrisisBonus = (getConfirmedDalioStage() === 'khung_hoang_no') ? 1 : 0;
     if(state.bonds === -1){
       const matchFwd = (actual, expected) => actual === expected ? 1 : (actual === 0 ? 0.5 : 0);
       const compat6 = matchFwd(state.stocks, -1) + matchFwd(state.commodities, 1);
-      const compat8 = matchFwd(state.stocks, -1) + matchFwd(state.commodities, -1);
+      // SỬA LỖI (phát hiện qua phản hồi thực tế lần 3): khi kết hợp CẢ số tháng LẪN vị trí giá cùng lúc, tổng 2
+      // bonus có thể tự đẩy compat vượt ngưỡng 1.5 mà KHÔNG cần bất kỳ xác nhận thật nào từ Cổ Phiếu/Hàng Hóa —
+      // lật ngược đúng loại lỗi đã cam kết ngăn chặn (Giai đoạn 5 rớt xuống 2% dù dữ liệu sống chưa hề đổi chiều).
+      // Tách riêng: compat8Asset (CHỈ từ Cổ Phiếu/Hàng Hóa thật) quyết định có được PHÉP lật hay không; compat8Dist
+      // (đã cộng thêm bonus số tháng/vị trí giá) chỉ quyết định TỶ LỆ phân bổ khi đã dịch chuyển, không quyết
+      // định việc có dịch chuyển đủ để lật hay không.
+      const compat8Asset = matchFwd(state.stocks, -1) + matchFwd(state.commodities, -1);
+      const compat8 = compat8Asset + priceLevelBonusDown + monthsOverflowBonus + costPushBonus + debtCrisisBonus;
+      const compat7Asset = (compat6 + compat8Asset) / 2;
       const compat7 = (compat6 + compat8) / 2;
-      const totalCompat = compat6 + compat7 + compat8; // 0..6
+      const totalCompat = compat6 + compat7 + compat8; // dùng cho shiftRatio — bonus vẫn được phép ảnh hưởng mức dịch chuyển TỔNG
       const shiftRatio = shiftFloor + shiftRange * (totalCompat / 6);
       const shift = raw[5] * shiftRatio;
       const floor = distFloor;
@@ -4273,22 +4492,30 @@ function computeShortCycleProbabilities(){
       let newRaw5 = raw[5] - shift;
       const newRaw6 = raw[6] + shift * (w6 / wSum);
       const newRaw8 = raw[8] + shift * (w8 / wSum);
-      // GIỚI HẠN QUAN TRỌNG (phát hiện qua phản hồi thực tế): Độ Trưởng Thành chỉ nói về RIÊNG Trái Phiếu, không
-      // được phép một mình lật ngược thứ hạng khi KHÔNG giai đoạn đích nào được CẢ Cổ Phiếu lẫn Hàng Hóa cùng
-      // xác nhận đầy đủ (compat >= 1.5). Nếu chưa có sự đồng thuận thật đó, Độ Trưởng Thành chỉ được phép THU
-      // HẸP khoảng cách với Giai đoạn 5, không được phép làm nó mất vị trí dẫn đầu — chỉ dữ liệu SỐNG thực sự
-      // đổi chiều (Cổ Phiếu/Hàng Hóa) mới có quyền đó.
-      const bestCompat = Math.max(compat6, compat7, compat8);
+      // GIỚI HẠN QUAN TRỌNG: quyết định có cho phép LẬT thứ hạng hay không CHỈ dựa vào compat GỐC từ Cổ
+      // Phiếu/Hàng Hóa thật (bestCompatAsset) — không tính bonus số tháng/vị trí giá vào quyết định này, để 2
+      // bonus đó không thể TỰ MÌNH cộng dồn đủ vượt ngưỡng mà không có xác nhận thật nào từ dữ liệu sống.
+      const bestCompatAsset = Math.max(compat6, compat7Asset, compat8Asset);
       const maxOther = Math.max(newRaw6, newRaw8); // raw7 luôn nội suy nằm giữa raw6/raw8, không thể vượt max của 2 cái này
       // SỬA LỖI (phát hiện qua phản hồi thực tế lần 2): biên độ +0.05 quá nhỏ, bị "nuốt mất" khi làm tròn %
       // (2 giai đoạn cùng hiện 21% dù Giai đoạn 5 vẫn thắng nội bộ) — khiến nhìn như app không có chính kiến.
       // Tăng biên độ lên tối thiểu 8% giá trị maxOther để đảm bảo SỐNG SÓT qua bước làm tròn, luôn hiện % khác biệt rõ ràng.
-      raw[5] = (bestCompat < 1.5 && newRaw5 < maxOther) ? maxOther * 1.08 : newRaw5;
+      raw[5] = (bestCompatAsset < 1.5 && newRaw5 < maxOther) ? maxOther * 1.08 : newRaw5;
       raw[6] = newRaw6; raw[8] = newRaw8;
+      // MỚI (phát hiện qua phản hồi thực tế): "cho xác suất" khác với "xác nhận" — dù chữ ký sống vẫn nói Trái
+      // Phiếu đang Giảm, bằng chứng gián tiếp càng cực đoan (78 tháng, Chi Phí Đẩy, Khủng Hoảng Nợ, giá gần đáy)
+      // càng nên phản ánh một xác suất KHIÊM TỐN NHƯNG KHÔNG TẦM THƯỜNG rằng thực tế đã âm thầm đảo chiều sang
+      // Giai đoạn 1 mà chưa kịp cập nhật vào lựa chọn Tăng/Giảm rời rạc — đây là bất định thật, không phải lỗi.
+      // Lấy 35% tổng các bonus gián tiếp (không phải toàn bộ, để không lấn át chính chữ ký sống) cộng thẳng vào
+      // Giai đoạn 1 — tách biệt khỏi cơ chế dịch chuyển 6/8 vốn chỉ dành cho phần "rời khỏi Giai đoạn 5".
+      const wrapAroundSpillover = (priceLevelBonusDown + monthsOverflowBonus + costPushBonus + debtCrisisBonus) * 0.35;
+      raw[1] += wrapAroundSpillover;
     } else if(state.bonds === 1){
       const matchFwd = (actual, expected) => actual === expected ? 1 : (actual === 0 ? 0.5 : 0);
-      const compat2 = matchFwd(state.stocks, 1) + matchFwd(state.commodities, -1);
       const compat4 = matchFwd(state.stocks, 1) + matchFwd(state.commodities, 1);
+      const compat2Asset = matchFwd(state.stocks, 1) + matchFwd(state.commodities, -1);
+      const compat2 = compat2Asset + priceLevelBonusUp + monthsOverflowBonus;
+      const compat3Asset = (compat2Asset + compat4) / 2;
       const compat3 = (compat2 + compat4) / 2;
       const totalCompat = compat2 + compat3 + compat4;
       const shiftRatio = shiftFloor + shiftRange * (totalCompat / 6);
@@ -4300,10 +4527,14 @@ function computeShortCycleProbabilities(){
       let newRaw1 = raw[1] - shift;
       const newRaw2 = raw[2] + shift * (w2 / wSum);
       const newRaw4 = raw[4] + shift * (w4 / wSum);
-      const bestCompat = Math.max(compat2, compat3, compat4);
+      const bestCompatAsset = Math.max(compat2Asset, compat3Asset, compat4);
       const maxOther = Math.max(newRaw2, newRaw4);
-      raw[1] = (bestCompat < 1.5 && newRaw1 < maxOther) ? maxOther * 1.08 : newRaw1;
+      raw[1] = (bestCompatAsset < 1.5 && newRaw1 < maxOther) ? maxOther * 1.08 : newRaw1;
       raw[2] = newRaw2; raw[4] = newRaw4;
+      // Đối xứng: Trái Phiếu Tăng cực đoan (bonus số tháng/vị trí giá) lan tỏa nhẹ sang Giai đoạn 5 — giai đoạn
+      // "kế tiếp" sau khi khép trọn vòng Đáy (1→2→3→4→5), cùng nguyên tắc với Giai đoạn 8→1 ở chiều ngược lại.
+      const wrapAroundSpilloverUp = (priceLevelBonusUp + monthsOverflowBonus) * 0.35;
+      raw[5] += wrapAroundSpilloverUp;
     }
   }
 
@@ -4457,6 +4688,66 @@ function renderReversalImminence(){
   `;
 }
 
+// =====================================================================================
+// ĐỘ TIN CẬY TỔNG HỢP — nâng cấp trực tiếp từ phản hồi thực tế: "chu kỳ liên thị trường phải được xác định bởi
+// TỔNG HỢP nhiều biến số lựa chọn bên trên, không chỉ 4 panel đầu tiên". QUAN TRỌNG: hàm này KHÔNG đổi giai đoạn
+// nào đang thắng (vẫn phải dựa trên chữ ký giá thật — Trái Phiếu/Cổ Phiếu/Hàng Hóa — không nên bị "gaming" bởi
+// biến phụ). Thay vào đó, đối chiếu giai đoạn đang thắng với 5 lớp tín hiệu KHÁC đã có sẵn trong app (Chế Độ
+// Tương Quan, Mâu Thuẫn Murphy-Dalio, Quá Nhiệt Giả, Dòng Vốn Quốc Tế, bằng chứng cấu trúc cho giai đoạn suy
+// yếu) — nếu các tín hiệu này KHÔNG đồng thuận, hiện rõ tỷ lệ đồng thuận thay vì âm thầm bỏ qua.
+// =====================================================================================
+function computeShortCycleCredibility(){
+  const sc = computeShortCycleProbabilities();
+  const topStage = STAGES.find(s=>s.id===sc.topId);
+  const checks = [];
+
+  // 1. Chế Độ Tương Quan Đồng Loạt — áp dụng cho MỌI giai đoạn, vì nếu bật, cả câu chuyện luân chuyển tuần tự
+  // bị nghi ngờ, không riêng gì giai đoạn cụ thể nào.
+  const regime = computeCorrelationRegime();
+  checks.push({ label:'Chế Độ Tương Quan Đồng Loạt', pass: !regime.active,
+    why: regime.active ? `Đang BẬT (${regime.triggers.length} điều kiện) — bánh xe tuần tự có thể không còn phù hợp lúc này.` : 'Chưa bật — khung luân chuyển tuần tự vẫn hợp lý.' });
+
+  // 2. Mâu Thuẫn Murphy↔Dalio (Quadrant) — chỉ áp dụng khi Dalio đã xác nhận đủ rõ 1 giai đoạn.
+  const dm = getDalioQuadrantMismatch();
+  if(dm) checks.push({ label:'Góc Phần Tư (Murphy) ↔ Chu Kỳ Nợ Dài Hạn (Dalio)', pass: dm.match,
+    why: dm.match ? 'Khớp nhau — góc phần tư thực tế đúng như Dalio ngụ ý.' : `Dalio ngụ ý "${dm.impliedInfo.short}" nhưng thực tế đang "${dm.actualInfo.short}".` });
+
+  const isGrowthLike = [1,2,3,4,5].includes(topStage.id); // 1-4: đang phục hồi/tăng trưởng; 5: tăng trưởng vẫn giả định còn tốt
+
+  // 3. Giai đoạn thuộc nhóm "tăng trưởng vẫn ổn" (1-5) — Dalio không nên đang xác nhận Khủng Hoảng Nợ, và
+  // Quá Nhiệt Giả không nên đang cảnh báo — cả 2 đều ngụ ý câu chuyện tăng trưởng có thể là ảo ảnh.
+  if(isGrowthLike){
+    const dalioStage = getConfirmedDalioStage();
+    checks.push({ label:'Chu Kỳ Nợ Dài Hạn (Dalio) không xác nhận khủng hoảng', pass: dalioStage !== 'khung_hoang_no',
+      why: dalioStage === 'khung_hoang_no' ? 'Dalio đang xác nhận Khủng Hoảng Nợ — mâu thuẫn với câu chuyện "tăng trưởng vẫn ổn" của giai đoạn này.' : 'Không mâu thuẫn.' });
+
+    const hsw = getHiddenStagflationWarning();
+    checks.push({ label:'Không có cảnh báo Quá Nhiệt Giả', pass: !hsw,
+      why: hsw ? 'Đang cảnh báo — góc phần tư Quá Nhiệt có thể là ảo ảnh, đang trượt sang Đình Lạm.' : 'Không có cảnh báo.' });
+  }
+
+  // 4. Dòng Vốn Quốc Tế nên khớp câu chuyện: giai đoạn tăng trưởng (1-5) hợp lý hơn với Đầu Tư, không phải Trú Ẩn.
+  if(isGrowthLike && capitalFlowType !== 'unknown'){
+    checks.push({ label:'Dòng Vốn Quốc Tế khớp câu chuyện tăng trưởng', pass: capitalFlowType === 'investment',
+      why: capitalFlowType === 'safe_haven' ? 'Bạn đang chọn Dòng Vốn Trú Ẩn — thường đi kèm tâm lý phòng thủ, không khớp với câu chuyện tăng trưởng vẫn tiếp diễn của giai đoạn này.' : 'Khớp — Dòng Vốn Đầu Tư đúng tinh thần tăng trưởng.' });
+  }
+
+  // 5. Giai đoạn thuộc nhóm "suy yếu" (6-8) nên có ít nhất 1 bằng chứng cấu trúc corroborate, không chỉ dựa
+  // thuần vào chữ ký 3 tài sản.
+  if([6,7,8].includes(topStage.id)){
+    const dalioStage = getConfirmedDalioStage();
+    const ycRisk = getYieldCurveHighRisk();
+    const corroborated = dalioStage === 'khung_hoang_no' || dalioStage === 'dinh' || ycRisk;
+    checks.push({ label:'Có bằng chứng cấu trúc cho giai đoạn suy yếu', pass: corroborated,
+      why: corroborated ? 'Có ít nhất 1 tín hiệu cấu trúc (Dalio hoặc Đường Cong Lợi Suất) xác nhận thêm.' : 'Chưa có tín hiệu cấu trúc nào xác nhận thêm — chỉ dựa thuần vào chữ ký 3 tài sản.' });
+  }
+
+  const passCount = checks.filter(c=>c.pass).length;
+  const totalCount = checks.length;
+  const credibilityPct = totalCount > 0 ? Math.round(passCount/totalCount*100) : 100;
+  return { topStage, checks, passCount, totalCount, credibilityPct };
+}
+
 function renderShortCycleProbReadout(){
   const el = document.getElementById('shortCycleProbReadout');
   if(!el) return;
@@ -4502,21 +4793,87 @@ function renderShortCycleProbReadout(){
     return `<button class="smile-ctx-btn" data-maturity="${m.key}" style="${style}">${m.label}</button>`;
   }).join('') : '';
   const maturityStageWord = state.bonds === 1 ? 'Tạo Đáy' : 'Tạo Đỉnh';
+
+  // Số tháng cụ thể — so với TRUNG BÌNH 1 giai đoạn (~10 tháng, giữa 8-12) VÀ TRUNG BÌNH CẢ 1 chu kỳ (~78 tháng,
+  // giữa 60-96) — cho lời văn chính xác hơn hẳn 3 mức chung chung, đúng tinh thần ví dụ "78 tháng" thực tế.
+  const monthsNote = (bondTrendMonths !== null && bondTrendMonths > 0) ? (() => {
+    const cycleRatio = Math.round((bondTrendMonths / FULL_CYCLE_AVG_MONTHS) * 100);
+    let verdict;
+    if(cycleRatio >= 90){
+      verdict = `<b>${bondTrendMonths} tháng đã trôi qua — bằng ${cycleRatio}% độ dài trung bình của CẢ 1 chu kỳ 8 giai đoạn</b> (60-96 tháng, trung bình ~${FULL_CYCLE_AVG_MONTHS} tháng), không chỉ vượt 1 giai đoạn mà đã gần bằng hoặc vượt CẢ MỘT VÒNG TRÒN. Đây là bằng chứng cực mạnh cho việc khung Chu Kỳ Ngắn Hạn Murphy không còn là công cụ phù hợp để mô tả hiện tượng này — nên đọc chủ yếu qua panel Chu Kỳ Nợ Dài Hạn (Dalio) phía trên. Con số này ĐÃ được nối vào công thức bên dưới (không chỉ để giải thích) — sàn dịch chuyển xác suất được nâng lên theo đúng tỷ lệ này.`;
+    } else if(cycleRatio >= 50){
+      verdict = `${bondTrendMonths} tháng đã trôi qua — bằng ${cycleRatio}% độ dài trung bình của cả 1 chu kỳ 8 giai đoạn (~${FULL_CYCLE_AVG_MONTHS} tháng). Đã vượt xa 1 giai đoạn đơn lẻ (~8-12 tháng), tiến gần tới quy mô của cả chu kỳ. Con số này đã được nối vào công thức bên dưới.`;
+    } else {
+      verdict = `${bondTrendMonths} tháng đã trôi qua — bằng khoảng ${cycleRatio}% độ dài trung bình cả 1 chu kỳ (~${FULL_CYCLE_AVG_MONTHS} tháng), đã vượt quá độ dài trung bình 1 giai đoạn đơn lẻ (~8-12 tháng). Con số này đã được nối vào công thức bên dưới.`;
+    }
+    return `<div class="sc-prob-conflict" style="margin-top:8px;border-color:#8B6FA655;background:rgba(139,111,166,0.08)">📐 ${verdict}</div>`;
+  })() : '';
+
+  const priceLevelNote = (bondPriceLevel === 'near_low' || bondPriceLevel === 'near_high') ? (() => {
+    const isLow = bondPriceLevel === 'near_low';
+    const alignedDir = isLow ? -1 : 1;
+    const aligned = state.bonds === alignedDir;
+    const alignText = aligned
+      ? `Khớp đúng với chiều Trái Phiếu đang ${isLow?'Giảm':'Tăng'} hiện tại — đã cộng thêm bằng chứng cho Giai đoạn ${isLow?'8 (Hàng Hóa Tạo Đỉnh, ngay trước khi khép vòng về Giai đoạn 1)':'4 (Hàng Hóa Tạo Đáy, ngay trước khi khép vòng về Giai đoạn 5)'} trong công thức bên dưới.`
+      : `Lưu ý: bạn chọn giá đang ở vùng ${isLow?'THẤP':'CAO'} nhưng Trái Phiếu hiện lại đang ${state.bonds===1?'Tăng':(state.bonds===-1?'Giảm':'Đi Ngang')} — 2 lựa chọn này không nhất quán với nhau, kiểm tra lại.`;
+    return `<div class="sc-prob-conflict" style="margin-top:8px;border-color:#C0503A55;background:rgba(192,80,58,0.08)">📊 Giá đang ở vùng ${isLow?'THẤP':'CAO'} nhiều năm. ${alignText}</div>`;
+  })() : '';
+
   const secularNote = bondTrendMaturity === 'secular'
-    ? `<div class="sc-prob-conflict" style="margin-top:8px">⚠ <b>Vượt ngoài phạm vi Chu Kỳ Ngắn Hạn Murphy:</b> chu kỳ 8 giai đoạn này vốn chỉ kéo dài 5-8 năm CHO TOÀN BỘ 8 giai đoạn — một xu hướng đơn lẻ đã chạy 5+ năm không còn là hiện tượng của MỘT giai đoạn ngắn hạn nữa, mà nhiều khả năng là dịch chuyển cấu trúc dài hạn. Bảng bên dưới vẫn hiển thị theo khung 8 giai đoạn để tham khảo, nhưng bạn nên ưu tiên đọc panel <b>Chu Kỳ Nợ Dài Hạn (Dalio)</b> ở phía trên cho câu hỏi này — tín hiệu "Đã Vượt Quá 1 Chu Kỳ" đã được tự động đưa vào tính toán Dalio.</div>`
-    : '';
+    ? `<div class="sc-prob-conflict" style="margin-top:8px">⚠ <b>Vượt ngoài phạm vi Chu Kỳ Ngắn Hạn Murphy:</b> chu kỳ 8 giai đoạn này vốn chỉ kéo dài 5-8 năm CHO TOÀN BỘ 8 giai đoạn — một xu hướng đơn lẻ đã chạy 5+ năm không còn là hiện tượng của MỘT giai đoạn ngắn hạn nữa, mà nhiều khả năng là dịch chuyển cấu trúc dài hạn. Bảng bên dưới vẫn hiển thị theo khung 8 giai đoạn để tham khảo, nhưng bạn nên ưu tiên đọc panel <b>Chu Kỳ Nợ Dài Hạn (Dalio)</b> ở phía trên cho câu hỏi này — tín hiệu "Đã Vượt Quá 1 Chu Kỳ" đã được tự động đưa vào tính toán Dalio.${monthsNote}${priceLevelNote}</div>`
+    : `${monthsNote}${priceLevelNote}`;
   const maturityBlock = state.bonds !== 0 ? `
     <div class="sc-prob-conflict" style="background:rgba(237,167,67,0.08);border-color:rgba(237,167,67,0.35)">
       <b>🕐 Độ Trưởng Thành Xu Hướng Trái Phiếu</b> — nhãn "Giá Trái Phiếu ${maturityStageWord}" mô tả đúng thời điểm giá VỪA đảo chiều; nếu xu hướng hiện tại đã kéo dài/đạt mức cực đoan nhiều năm (ví dụ giá/lợi suất đang ở vùng cực trị 5 năm), xác suất nên dịch chuyển sang các giai đoạn XA HƠN trong cùng chiều, không còn "vừa mới đảo chiều" nữa.
       <div class="smile-ctx-row" style="margin-top:8px">${maturityRow}</div>
+      <div style="margin-top:8px">
+        <span class="stocks-usd-axis-label">SỐ THÁNG CỤ THỂ KỂ TỪ KHI ĐẢO CHIỀU (tùy chọn, cho lời văn VÀ công thức chính xác hơn):</span>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <input type="number" id="bondTrendMonthsInput" min="1" step="1" placeholder="vd: 78" value="${bondTrendMonths ?? ''}" style="width:90px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);font-family:'IBM Plex Mono',monospace">
+          <span style="font-size:11px;color:var(--muted)">tháng</span>
+          <button class="smile-ctx-btn" id="bondTrendMonthsBtn">Cập nhật</button>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <span class="stocks-usd-axis-label">GIÁ HIỆN TẠI SO VỚI VÙNG DAO ĐỘNG NHIỀU NĂM — tín hiệu ĐỘC LẬP với chiều/số tháng, cho biết giá đang ở vùng nào so với lịch sử của chính nó:</span>
+        <div class="smile-ctx-row" style="margin-top:4px">
+          <button class="smile-ctx-btn" data-price-level="near_high" style="${bondPriceLevel==='near_high'?'background:#5F8E54;color:#2B1B10;border-color:#5F8E54':'color:#5F8E54;border-color:#5F8E5455'}">Gần Đỉnh Nhiều Năm</button>
+          <button class="smile-ctx-btn" data-price-level="middle" style="${bondPriceLevel==='middle'?'background:#EDA743;color:#2B1B10;border-color:#EDA743':'color:#EDA743;border-color:#EDA74355'}">Ở Giữa</button>
+          <button class="smile-ctx-btn" data-price-level="near_low" style="${bondPriceLevel==='near_low'?'background:#C0503A;color:#2B1B10;border-color:#C0503A':'color:#C0503A;border-color:#C0503A55'}">Gần Đáy Nhiều Năm</button>
+        </div>
+      </div>
       ${secularNote}
     </div>` : '';
 
+  const correlationRegime = computeCorrelationRegime();
+  const correlationWarningBanner = correlationRegime.active
+    ? `<div class="sc-prob-conflict" style="background:rgba(192,80,58,0.15);border-color:#C0503A;font-weight:600">🌊 <b>CHẾ ĐỘ TƯƠNG QUAN ĐỒNG LOẠT đang BẬT</b> (${correlationRegime.triggers.length} điều kiện được xác nhận ở panel phía trên) — bảng xác suất 8 giai đoạn bên dưới có độ tin cậy THẤP, vì bánh xe Murphy giả định luân chuyển tuần tự không còn phù hợp lúc này. Nên đọc chỉ báo "Xác Suất Tương Quan Đồng Loạt" ở panel Chế Độ Tương Quan phía trên thay vì bảng dưới đây.</div>`
+    : '';
+
+  // MỚI — Độ Tin Cậy Tổng Hợp: đối chiếu giai đoạn đang thắng với 5 lớp tín hiệu KHÁC trong app (Chế Độ Tương
+  // Quan, Mâu Thuẫn Murphy-Dalio, Quá Nhiệt Giả, Dòng Vốn Quốc Tế, bằng chứng cấu trúc) — KHÔNG đổi giai đoạn nào
+  // thắng, chỉ làm rõ mức độ ĐỒNG THUẬN thật sự thay vì chỉ dựa 3 biến gốc.
+  const cred = computeShortCycleCredibility();
+  const credHex = cred.credibilityPct >= 80 ? '#5F8E54' : (cred.credibilityPct >= 50 ? '#EDA743' : '#C0503A');
+  const credChecksHtml = cred.checks.map(c=>
+    `<div class="sc-prob-conflict" style="margin-top:4px;padding:8px 10px;${c.pass?'border-color:#5F8E5455;background:rgba(95,142,84,0.06)':'border-color:#C0503A55;background:rgba(192,80,58,0.06)'}">${c.pass?'✓':'✗'} <b>${c.label}:</b> ${c.why}</div>`
+  ).join('');
+  const credibilityBlock = `
+    <div class="sc-prob-conflict" style="margin-top:8px;border-color:${credHex}66;background:${credHex}11">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span>🔍 <b>Độ Tin Cậy Tổng Hợp của Giai đoạn ${cred.topStage.id}</b> — đối chiếu với ${cred.totalCount} lớp tín hiệu khác trong app (không chỉ 3 biến Trái Phiếu/Cổ Phiếu/Hàng Hóa)</span>
+        <span style="font-weight:700;color:${credHex}">${cred.credibilityPct}% (${cred.passCount}/${cred.totalCount})</span>
+      </div>
+      ${credChecksHtml}
+    </div>`;
+
   el.innerHTML = `
+    ${correlationWarningBanner}
     <div class="sc-prob-header">
       <span class="sc-prob-title">📈 Xác suất theo dữ liệu hiện tại — neo vào hướng Giá Trái Phiếu Mỹ, đối chiếu Cổ Phiếu &amp; Hàng Hóa</span>
       <button class="smile-ctx-btn" id="jumpTopStageBtn" style="color:${topHex};border-color:${topHex}55">Xem Giai đoạn ${topId} (${pct[topId]}%)</button>
     </div>
+    ${credibilityBlock}
     ${maturityBlock}
     ${conflictBanner}
     ${rows}
@@ -4529,6 +4886,11 @@ function renderShortCycleProbReadout(){
   }
   el.querySelectorAll('[data-sync]').forEach(btn=>{
     btn.addEventListener('click', ()=> setGlobalYieldSync(btn.dataset.sync));
+  });
+  const monthsBtn = document.getElementById('bondTrendMonthsBtn');
+  if(monthsBtn) monthsBtn.addEventListener('click', updateBondTrendMonths);
+  el.querySelectorAll('[data-price-level]').forEach(btn=>{
+    btn.addEventListener('click', ()=> setBondPriceLevel(btn.dataset.priceLevel));
   });
   document.getElementById('jumpTopStageBtn').addEventListener('click', ()=>{
     stopPlay();
@@ -5240,6 +5602,11 @@ function stagePos(i){
 function drawCycle(){
   const svg = document.getElementById('cycleDiagram');
   const scProb = computeShortCycleProbabilities();
+  // SỬA LỖI (phát hiện qua phản hồi thực tế): đã xây "Chế Độ Tương Quan" nhưng để nguyên cái vòng tròn hiện tự
+  // tin y hệt như cũ — nhìn vào vòng tròn, không thấy gì thay đổi dù bên dưới đã cảnh báo "không đáng tin". Giờ
+  // chính vòng tròn cũng phải phản ánh: đổi màu dấu đánh dấu vị trí (vàng→đỏ) + thêm cảnh báo ngay giữa vòng tròn.
+  const correlationRegime = computeCorrelationRegime();
+  const markerHex = correlationRegime.active ? '#C0503A' : '#C8A35A';
   let html = `<defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#C9B896"/>
@@ -5268,13 +5635,24 @@ function drawCycle(){
     const isTopProb = stage.id === scProb.topId;
     const r = active ? 37 : 33;
     html += `<g class="stage-node" data-stage="${stage.id}" transform="translate(${p.x},${p.y})">
-      ${isTopProb ? `<circle r="${r+7}" fill="none" stroke="#C8A35A" stroke-width="2" stroke-dasharray="3 4" opacity="0.85"/>` : ''}
-      <circle r="${r}" fill="#FFFFFF" stroke="${hex}" stroke-width="${active?3:2}" style="${active?`filter:drop-shadow(0 0 8px ${hex}88)`:''}"/>
+      ${isTopProb ? `<circle r="${r+7}" fill="none" stroke="${markerHex}" stroke-width="2" stroke-dasharray="3 4" opacity="0.85"/>` : ''}
+      <circle r="${r}" fill="#FFFFFF" stroke="${hex}" stroke-width="${active?3:2}" style="${active?`filter:drop-shadow(0 0 8px ${hex}88)`:''}${correlationRegime.active?';opacity:0.55':''}"/>
       <text class="stage-num" x="0" y="1" text-anchor="middle" dominant-baseline="middle">${stage.id}</text>
       <text class="stage-tag" x="0" y="${r+14}" text-anchor="middle" fill="${hex}">${stage.phase==='bottom'?'ĐÁY':'ĐỈNH'} · ${ASSET_NAME[stage.assetKey].toUpperCase()}</text>
-      ${isTopProb ? `<text x="0" y="${-r-11}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#C8A35A">★ ${scProb.pct[stage.id]}%</text>` : ''}
+      ${isTopProb ? `<text x="0" y="${-r-11}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="${markerHex}">★ ${scProb.pct[stage.id]}%</text>` : ''}
     </g>`;
   });
+
+  // Cảnh báo ngay giữa vòng tròn khi Chế Độ Tương Quan Đồng Loạt đang bật — không cần cuộn xuống mới thấy
+  if(correlationRegime.active){
+    html += `<g transform="translate(${CYCLE_CENTER.x},${CYCLE_CENTER.y})">
+      <rect x="-95" y="-38" width="190" height="76" rx="10" fill="#FBEAE6" stroke="#C0503A" stroke-width="1.5"/>
+      <text x="0" y="-16" text-anchor="middle" font-size="20">🌊</text>
+      <text x="0" y="2" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="700" fill="#C0503A">TƯƠNG QUAN ĐỒNG LOẠT</text>
+      <text x="0" y="16" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#C0503A">Vị trí ★ bên dưới KHÔNG đáng tin</text>
+      <text x="0" y="28" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#C0503A">Xem panel phía trên</text>
+    </g>`;
+  }
 
   svg.innerHTML = html;
   svg.querySelectorAll('.stage-node').forEach(node=>{
@@ -5565,6 +5943,42 @@ const QUAD_CELLS = [
   { id:'br', hex:'#5F8E54', short:'VÙNG VÀNG' },
 ];
 
+// ---- Nối Chu Kỳ Nợ Dài Hạn (Dalio) với Đồng Hồ Trung Tâm — mỗi giai đoạn Dalio có xu hướng ngụ ý MỘT góc
+// phần tư cụ thể; nếu góc phần tư THỰC TẾ đang quan sát mâu thuẫn với ngụ ý đó, đây là cảnh báo cùng họ với
+// "Quá Nhiệt Giả" đã có — phát hiện qua đối chiếu 4 điểm mâu thuẫn Murphy-Dalio thực tế.
+const DALIO_STAGE_IMPLIED_QUADRANT = {
+  tang_truong_dau: 'br',
+  bong_bong: 'tr',
+  dinh: 'tr', // Quá Nhiệt đang trượt sang Đình Lạm — đã có sẵn cơ chế Quá Nhiệt Giả cho đúng trường hợp này
+  binh_thuong_hoa: 'br',
+  // khung_hoang_no và giam_don_bay: phụ thuộc thêm dữ liệu khác (commodityCause/dalioLeverage), tính riêng bên dưới
+};
+function getDalioQuadrantMismatch(){
+  const confirmedStage = getConfirmedDalioStage();
+  if(confirmedStage === 'none') return null;
+
+  let impliedQuadrant = DALIO_STAGE_IMPLIED_QUADRANT[confirmedStage] || null;
+  let impliedNote = '';
+  if(confirmedStage === 'khung_hoang_no'){
+    // Khủng hoảng nợ kiểu LẠM PHÁT (1970s, Chi Phí Đẩy chi phối) -> Đình Lạm; kiểu GIẢM PHÁT (2008, chưa có Chi
+    // Phí Đẩy) -> Suy Thoái/Thiểu Phát — 2 kịch bản hoàn toàn khác góc phần tư dù cùng 1 giai đoạn Dalio.
+    if(commodityCause === 'cost_push'){ impliedQuadrant = 'tl'; impliedNote = ' (kiểu khủng hoảng nợ LẠM PHÁT — 1970s — vì Hàng Hóa đang tăng do Chi Phí Đẩy)'; }
+    else { impliedQuadrant = 'bl'; impliedNote = ' (kiểu khủng hoảng nợ GIẢM PHÁT — 2008 — chưa có tín hiệu Chi Phí Đẩy)'; }
+  } else if(confirmedStage === 'giam_don_bay'){
+    if(dalioLeverage === 'good'){ impliedQuadrant = 'br'; impliedNote = ' (Giảm Đòn Bẩy "Đẹp")'; }
+    else if(dalioLeverage === 'bad'){ impliedQuadrant = 'bl'; impliedNote = ' (Giảm Đòn Bẩy "Xấu")'; }
+    else return null; // chưa chọn loại đòn bẩy — chưa đủ dữ liệu để suy luận góc phần tư ngụ ý
+  }
+  if(!impliedQuadrant) return null;
+
+  const actualQuadrant = computeRegime().quadrant;
+  const match = impliedQuadrant === actualQuadrant;
+  const stageInfo = DALIO_STAGES.find(s=>s.key===confirmedStage);
+  const impliedInfo = QUAD_CELLS.find(c=>c.id===impliedQuadrant);
+  const actualInfo = QUAD_CELLS.find(c=>c.id===actualQuadrant);
+  return { impliedQuadrant, impliedNote, actualQuadrant, match, confirmedStage, stageInfo, impliedInfo, actualInfo };
+}
+
 function renderQuadrant(){
   const regime = computeRegime();
   const grid = document.getElementById('quadGrid');
@@ -5578,10 +5992,15 @@ function renderQuadrant(){
 
   const cellHex = QUAD_CELLS.find(c=>c.id===regime.quadrant).hex;
   const warning = getHiddenStagflationWarning();
+  const dalioMismatch = getDalioQuadrantMismatch();
+  const dalioMismatchHtml = (dalioMismatch && !dalioMismatch.match)
+    ? `<div class="sc-prob-conflict">⚠ <b>Mâu thuẫn Murphy↔Dalio:</b> Chu Kỳ Nợ Dài Hạn đã xác nhận giai đoạn "${dalioMismatch.stageInfo.label}"${dalioMismatch.impliedNote} — về logic, giai đoạn này thường ngụ ý góc phần tư "${dalioMismatch.impliedInfo.short}", nhưng Đồng Hồ Trung Tâm thực tế đang hiện "${dalioMismatch.actualInfo.short}". Đây là dấu hiệu bức tranh ngắn hạn (Cổ Phiếu/Hàng Hóa) CHƯA bắt kịp thực tế cấu trúc dài hạn — nên thận trọng với độ tin cậy của góc phần tư hiện tại.</div>`
+    : '';
   document.getElementById('quadDetail').innerHTML = `
     <h4 style="color:${cellHex}">${regime.label}</h4>
     <p>${regime.sublabel}</p>
     ${warning ? `<div class="sc-prob-conflict">⚠ <b>Cảnh báo "Quá Nhiệt giả":</b> ${warning}</div>` : ''}
+    ${dalioMismatchHtml}
   `;
 }
 
