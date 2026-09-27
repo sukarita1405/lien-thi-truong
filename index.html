@@ -1559,6 +1559,42 @@
   .ov-chip.unset{color:var(--muted);border-style:dashed;background:transparent;}
   .ov-chip:hover{border-color:var(--text);}
   .ov-frame .final-synthesis-wrap{margin-bottom:14px;}
+  /* ---- Đề xuất từ số liệu thị trường ---- */
+  .market-bar{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin:0 0 14px;padding:9px 12px;border-radius:10px;
+    background:rgba(78,127,168,0.08);border:1px solid rgba(78,127,168,0.3);font-size:13px;
+  }
+  .market-bar .mb-text{flex:1;min-width:200px;}
+  .mb-apply,.sug-apply{
+    font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;
+    color:#fff;background:var(--bonds);border:1px solid var(--bonds);border-radius:999px;padding:6px 13px;
+  }
+  .mb-apply:hover,.sug-apply:hover{filter:brightness(1.08);}
+  .sug-apply[disabled]{opacity:.45;cursor:not-allowed;}
+  .sug-ok{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--usd);white-space:nowrap;}
+  .sug-hint{
+    display:block;width:100%;margin-top:8px;padding:5px 8px;border-radius:6px;cursor:pointer;text-align:left;
+    font:inherit;font-size:11.5px;color:var(--bonds);background:rgba(78,127,168,0.08);border:1px dashed rgba(78,127,168,0.45);
+  }
+  .sug-hint.matched{color:var(--usd);background:transparent;border-color:rgba(95,142,84,0.4);cursor:default;}
+  .sug-hint[disabled]:not(.matched){opacity:.55;cursor:not-allowed;}
+  .sug-box{background:var(--panel);border:1px solid rgba(78,127,168,0.35);border-radius:14px;padding:14px 16px;margin-bottom:20px;}
+  .sug-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;margin-bottom:6px;}
+  .sug-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:9px 0;border-top:1px dashed var(--border);}
+  .sug-row.matched .sug-label b{color:var(--usd);}
+  .sug-main{min-width:0;flex:1;}
+  .sug-label{font-size:13.5px;}
+  .sug-conf{font-family:'IBM Plex Mono',monospace;font-size:10.5px;margin-left:6px;}
+  .sug-reason{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:2px;}
+  .sug-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);font-weight:400;}
+  .ov-sync{flex-basis:100%;font-size:12.5px;line-height:1.7;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);}
+  .ov-sync .sug-apply{margin-left:4px;padding:3px 10px;}
+  @media (max-width:600px){
+    .sug-row{flex-direction:column;gap:6px;}
+  }
+
   @media (max-width:820px){
     .ov-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
     .ov-grid{grid-template-columns:1fr;}
@@ -4047,6 +4083,7 @@ function render(){
   renderCorrelationRegimePanel();
   renderMacroForecastPanel();
   renderOverview();
+  renderSuggestions();
 }
 
 function setUsdContext(key){
@@ -6495,15 +6532,200 @@ function renderOverview(){
     { goto:'wheel', label:'Lăng kính Việt Nam', val: emergingMarketLens ? 'Đang bật' : null },
     { goto:'crisis', label:'Khủng hoảng', val: activeCrises.size ? `${activeCrises.size} đang bật` : null },
   ];
+  // Trạng thái đồng bộ với số liệu thị trường (nếu đã tải được data/market.json)
+  let syncHtml = '';
+  if(typeof marketData !== 'undefined' && marketData && marketData.suggestions){
+    const keys = SUGGESTION_ORDER.filter(k=>getSuggestion(k));
+    const pending = keys.filter(k=>!suggestionMatches(k));
+    syncHtml = `<div class="ov-sync">📡 <b>${keys.length - pending.length}/${keys.length}</b> ô khớp số liệu FRED ngày ${viDate(marketData.generatedAt)}${pending.length
+      ? ` — còn khác: ${pending.map(k=>SUGGESTION_DEFS[k].label).join(', ')}. <button type="button" class="sug-apply" data-sug="${pending.join(',')}">Áp dụng tất cả</button>`
+      : ' — toàn bộ đầu vào đang theo dữ liệu.'}</div>`;
+  }
   document.getElementById('ovInputs').innerHTML = chips.map(c=>
     `<button type="button" class="ov-chip${c.val ? '' : ' unset'}" data-goto="${c.goto}">${c.label}: <b>${c.val || 'chưa chọn'}</b></button>`
-  ).join('');
+  ).join('') + syncHtml;
 
   renderTabDots();
 }
 
+// =====================================================================================
+// ĐỀ XUẤT TỪ DỮ LIỆU THỊ TRƯỜNG — data/market.json do GitHub Actions tải từ FRED mỗi ngày
+// (scripts/fetch-market.mjs). Trang chỉ HIỆN đề xuất kèm lý do + ngày số liệu; người dùng tự bấm "Áp dụng".
+// Không bao giờ tự ghi đè lựa chọn — các khung lý thuyết trong app cần người dùng hiểu vì sao mình chọn.
+// =====================================================================================
+let marketData = null;      // nội dung data/market.json khi tải được
+let marketDataError = null; // thông báo lỗi khi không tải được
+
+const DIR_LABEL = { '1':'TĂNG', '0':'NGANG', '-1':'GIẢM' };
+const YESNO_LABEL = { yes:'Có', no:'Không' };
+const MATURITY_LABEL = { fresh:'Mới Đảo Chiều', extended:'Đã Kéo Dài', secular:'Đã Vượt Quá 1 Chu Kỳ' };
+const PRICE_LEVEL_LABEL = { near_low:'Gần vùng THẤP nhiều năm', near_high:'Gần vùng CAO nhiều năm', middle:'Vùng giữa' };
+const labelFrom = (list) => v => (list.find(x=>x.key===v) || {}).label || v;
+
+// Mỗi đề xuất: thuộc tab nào, tên hiển thị, cách đọc giá trị hiện tại, cách áp dụng, cách hiển thị giá trị.
+const SUGGESTION_DEFS = {
+  bonds:       { tab:'asset', label:'Giá Trái Phiếu', get:()=>state.bonds,       set:v=>{ state.bonds = v; },       fmt:v=>DIR_LABEL[v] },
+  stocks:      { tab:'asset', label:'Cổ Phiếu',       get:()=>state.stocks,      set:v=>{ state.stocks = v; },      fmt:v=>DIR_LABEL[v] },
+  usd:         { tab:'asset', label:'Đô La Mỹ',       get:()=>state.usd,         set:v=>{ state.usd = v; },         fmt:v=>DIR_LABEL[v],
+                 blocked:()=> usdContext !== 'normal' ? 'USD đang bị khóa Tăng bởi bối cảnh Dollar Smile — đổi Dollar Smile về "Bình Thường" trước.' : null },
+  commodities: { tab:'asset', label:'Hàng Hóa',       get:()=>state.commodities, set:v=>{ state.commodities = v; }, fmt:v=>DIR_LABEL[v] },
+
+  commodityCause: { tab:'assets', label:'Nguyên nhân Hàng Hóa tăng', get:()=>commodityCause, set:v=>{ commodityCause = v; }, fmt:labelFrom(COMMODITY_CAUSES) },
+  oilTrend:       { tab:'assets', label:'Xu hướng Dầu', get:()=>oilTrend, set:v=>{ oilTrend = v; if(v === 0) oilMaturity = 'unknown'; }, fmt:v=>DIR_LABEL[v] },
+  oilMaturity:    { tab:'assets', label:'Độ dài xu hướng Dầu', get:()=>oilMaturity, set:v=>{ oilMaturity = v; }, fmt:v=>MATURITY_LABEL[v] },
+
+  usdContext:      { tab:'usdfed', label:'Dollar Smile', get:()=>usdContext, set:v=>{ usdContext = v; if(v !== 'normal') state.usd = 1; }, fmt:labelFrom(USD_CONTEXTS) },
+  capitalFlowType: { tab:'usdfed', label:'Dòng vốn quốc tế', get:()=>capitalFlowType, set:v=>{ capitalFlowType = v; }, fmt:labelFrom(CAPITAL_FLOW_TYPES) },
+  fedCycle:        { tab:'usdfed', label:'Chu kỳ Lãi Suất Fed', get:()=>fedCycle, set:v=>{ fedCycle = v; }, fmt:labelFrom(FED_CYCLES) },
+  creditInputs:    { tab:'usdfed', label:'M2 YoY · Lãi suất Fed · Lợi suất 10 năm',
+                     get:()=>({ m2yoy:creditInputs.m2yoy, fedRate:creditInputs.fedRate, treasury10y:creditInputs.treasury10y }),
+                     set:v=>{
+                       creditInputs = { m2yoy:v.m2yoy, fedRate:v.fedRate, treasury10y:v.treasury10y, updatedAt:new Date() };
+                       if(v.m2yoy !== null && v.fedRate) creditBand = computeBandFromRatio(v.m2yoy / v.fedRate);
+                       [['m2YoyInput',v.m2yoy],['fedRateInput',v.fedRate],['treasury10yInput',v.treasury10y]].forEach(([id,val])=>{
+                         const el = document.getElementById(id); if(el && val !== null) el.value = val;
+                       });
+                     },
+                     fmt:v=>`${v.m2yoy ?? '—'}% · ${v.fedRate ?? '—'}% · ${v.treasury10y ?? '—'}%` },
+
+  debtGdpLevel:      { tab:'cycle', label:'Nợ/GDP so với TB 10 năm (Mỹ)', get:()=>debtGdpLevel, set:v=>{ debtGdpLevel = v; debtGdpScope = 'world'; }, fmt:labelFrom(DEBT_GDP_LEVELS) },
+  bondTrendMaturity: { tab:'cycle', label:'Độ dài xu hướng Trái Phiếu', get:()=>bondTrendMaturity, set:v=>{ bondTrendMaturity = v; }, fmt:v=>MATURITY_LABEL[v] },
+  bondTrendMonths:   { tab:'cycle', label:'Số tháng xu hướng Trái Phiếu', get:()=>bondTrendMonths, set:v=>{ bondTrendMonths = v; }, fmt:v=>`${v} tháng` },
+  bondPriceLevel:    { tab:'cycle', label:'Vị trí giá Trái Phiếu', get:()=>bondPriceLevel, set:v=>{ bondPriceLevel = v; }, fmt:v=>PRICE_LEVEL_LABEL[v] },
+  globalYieldSync:   { tab:'cycle', label:'Lợi suất nhiều nước cùng tăng', get:()=>globalYieldSync, set:v=>{ globalYieldSync = v; }, fmt:v=>YESNO_LABEL[v] },
+  activeQE:          { tab:'cycle', label:'QE đang bẻ cong thị trường', get:()=>activeQE, set:v=>{ activeQE = v; }, fmt:v=>YESNO_LABEL[v] },
+  usdFundingStress:  { tab:'cycle', label:'Căng thẳng thanh khoản USD', get:()=>usdFundingStress, set:v=>{ usdFundingStress = v; }, fmt:v=>YESNO_LABEL[v] },
+
+  eci: { tab:'macro', label:'ECI tiền lương (YoY) quý này · quý trước', get:()=>({ current:eciCurrent, previous:eciPrevious }),
+         set:v=>{ eciCurrent = v.current; eciPrevious = v.previous; }, fmt:v=>`${v.current}% · ${v.previous}%` },
+};
+// Thứ tự khi "Áp dụng tất cả": tài sản trước, bối cảnh sau (Dollar Smile có thể khóa USD)
+const SUGGESTION_ORDER = Object.keys(SUGGESTION_DEFS);
+const TAB_OF_SUGGESTION_BOX = { assets:'assets', usdfed:'usdfed', cycle:'cycle', macro:'macro' };
+
+function getSuggestion(key){
+  return marketData && marketData.suggestions ? marketData.suggestions[key] || null : null;
+}
+function suggestionMatches(key){
+  const s = getSuggestion(key);
+  if(!s) return false;
+  return JSON.stringify(SUGGESTION_DEFS[key].get()) === JSON.stringify(s.value);
+}
+function applySuggestions(keys){
+  let n = 0;
+  keys.forEach(k=>{
+    const s = getSuggestion(k), def = SUGGESTION_DEFS[k];
+    if(!s || !def) return;
+    if(def.blocked && def.blocked()) return;
+    def.set(s.value);
+    n++;
+  });
+  if(n) fullRender();
+  return n;
+}
+function applyAllSuggestions(){
+  // Dollar Smile đặt SAU để nếu đề xuất là Khủng Hoảng/Hưng Thịnh thì USD bị khóa Tăng đúng quy tắc của app;
+  // nếu đề xuất "Bình Thường" thì trả khóa trước rồi mới áp dụng chiều USD.
+  if(getSuggestion('usdContext') && getSuggestion('usdContext').value === 'normal') usdContext = 'normal';
+  applySuggestions(SUGGESTION_ORDER);
+}
+
+const viDate = d => d ? d.slice(0,10).split('-').reverse().join('/') : '—';
+const CONF_HEX = { 'cao':'#5F8E54', 'trung bình':'#EDA743', 'thấp':'#C0503A' };
+
+function suggestionRowHtml(key){
+  const s = getSuggestion(key), def = SUGGESTION_DEFS[key];
+  const match = suggestionMatches(key);
+  const blocked = def.blocked ? def.blocked() : null;
+  const action = match
+    ? '<span class="sug-ok">✓ Đang dùng</span>'
+    : `<button type="button" class="sug-apply" data-sug="${key}" ${blocked ? `disabled title="${blocked}"` : ''}>Áp dụng</button>`;
+  return `<div class="sug-row${match ? ' matched' : ''}">
+    <div class="sug-main">
+      <div class="sug-label">${def.label}: <b>${def.fmt(s.value)}</b>
+        <span class="sug-conf" style="color:${CONF_HEX[s.confidence] || 'var(--muted)'}">tin cậy ${s.confidence}</span></div>
+      <div class="sug-reason">${s.reason}${s.asOf ? ` <span class="sug-date">· số liệu ${viDate(s.asOf)}</span>` : ''}</div>
+    </div>
+    ${action}
+  </div>`;
+}
+
+function renderSuggestions(){
+  const bar = document.getElementById('marketBar');
+  if(!bar) return;
+  if(!marketData){
+    bar.innerHTML = marketDataError
+      ? `<span class="mb-icon">📡</span><span class="mb-text">Chưa tải được số liệu thị trường (${marketDataError}). Bạn vẫn chọn tay bình thường.</span>`
+      : `<span class="mb-icon">📡</span><span class="mb-text">Đang tải số liệu thị trường…</span>`;
+    return;
+  }
+  const keys = SUGGESTION_ORDER.filter(k=>getSuggestion(k));
+  const matched = keys.filter(suggestionMatches).length;
+  bar.innerHTML = `
+    <span class="mb-icon">📡</span>
+    <span class="mb-text">Đề xuất từ số liệu <b>FRED</b> cập nhật <b>${viDate(marketData.generatedAt)}</b> — <b>${matched}/${keys.length}</b> ô đang khớp đề xuất.</span>
+    ${matched < keys.length ? '<button type="button" class="mb-apply" id="applyAllSug">Áp dụng tất cả đề xuất</button>' : '<span class="sug-ok">✓ Đã khớp toàn bộ</span>'}`;
+  const all = document.getElementById('applyAllSug');
+  if(all) all.addEventListener('click', applyAllSuggestions);
+
+  // Gợi ý ngắn dưới từng tài sản
+  document.querySelectorAll('.ctrl .seg').forEach(seg=>{
+    const key = seg.dataset.asset;
+    let hint = seg.parentElement.querySelector('.sug-hint');
+    if(!hint){ hint = document.createElement('button'); hint.type = 'button'; hint.className = 'sug-hint'; seg.parentElement.appendChild(hint);
+      hint.addEventListener('click', ()=>applySuggestions([key])); }
+    const s = getSuggestion(key);
+    if(!s){ hint.hidden = true; return; }
+    hint.hidden = false;
+    const match = suggestionMatches(key), blocked = SUGGESTION_DEFS[key].blocked && SUGGESTION_DEFS[key].blocked();
+    hint.disabled = match || !!blocked;
+    hint.className = 'sug-hint' + (match ? ' matched' : '');
+    hint.innerHTML = match ? `✓ Khớp dữ liệu: ${DIR_LABEL[s.value]}` : `💡 Dữ liệu: <b>${DIR_LABEL[s.value]}</b> — bấm để áp dụng`;
+    hint.title = blocked || s.reason;
+  });
+
+  // Hộp đề xuất ở đầu mỗi tab
+  Object.keys(TAB_OF_SUGGESTION_BOX).forEach(tab=>{
+    const box = document.getElementById('sugbox-'+tab);
+    if(!box) return;
+    const tabKeys = keys.filter(k=>SUGGESTION_DEFS[k].tab === tab);
+    if(!tabKeys.length){ box.hidden = true; return; }
+    box.hidden = false;
+    const pending = tabKeys.filter(k=>!suggestionMatches(k));
+    box.innerHTML = `
+      <div class="sug-head">
+        <span>💡 Đề xuất từ số liệu thị trường <span class="sug-date">(${viDate(marketData.generatedAt)})</span></span>
+        ${pending.length > 1 ? `<button type="button" class="sug-apply" data-sug="${pending.join(',')}">Áp dụng ${pending.length} đề xuất</button>` : ''}
+      </div>
+      ${tabKeys.map(suggestionRowHtml).join('')}`;
+  });
+}
+
+function initSuggestions(){
+  const assetBar = document.querySelector('.asset-bar');
+  const bar = document.createElement('div');
+  bar.className = 'market-bar'; bar.id = 'marketBar';
+  assetBar.after(bar);
+  Object.keys(TAB_OF_SUGGESTION_BOX).forEach(tab=>{
+    const intro = document.querySelector(`#tab-${tab} .tab-intro`);
+    const box = document.createElement('div');
+    box.className = 'sug-box'; box.id = 'sugbox-'+tab; box.hidden = true;
+    intro.after(box);
+  });
+  document.querySelector('.wrap').addEventListener('click', e=>{
+    const b = e.target.closest('.sug-apply[data-sug]');
+    if(b && !b.disabled) applySuggestions(b.dataset.sug.split(','));
+  });
+  renderSuggestions();
+  fetch('data/market.json', { cache:'no-cache' })
+    .then(r=>{ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(d=>{ marketData = d; renderSuggestions(); renderOverview(); })
+    .catch(e=>{ marketDataError = e.message; renderSuggestions(); });
+}
+
 buildControls();
 initTabs();
+initSuggestions();
 fullRender();
 initCycle();
 initCrises();

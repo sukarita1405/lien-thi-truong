@@ -1,0 +1,201 @@
+{
+  "generatedAt": "2026-09-27T12:40:37.439Z",
+  "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
+  "thresholds": {
+    "yieldBp": 25,
+    "stocksPct": 3,
+    "usdPct": 1.5,
+    "commPct": 3,
+    "oilPct": 5
+  },
+  "series": {
+    "PALLFNFINDEXM": {
+      "label": "Chỉ số giá toàn bộ hàng hóa IMF (tháng)",
+      "date": "2026-07-01",
+      "value": 193.2044744461968
+    },
+    "ECIWAG": {
+      "label": "Chỉ số Chi Phí Tiền Lương ECI (tư nhân)",
+      "date": "2026-04-01",
+      "value": 179.01
+    },
+    "IRLTLT01DEM156N": {
+      "label": "Lợi suất dài hạn Đức (%)",
+      "date": "2026-08-01",
+      "value": 3.18
+    },
+    "DGS10": {
+      "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
+      "date": "2026-09-24",
+      "value": 5.18
+    },
+    "DCOILBRENTEU": {
+      "label": "Dầu Brent (USD/thùng)",
+      "date": "2026-09-22",
+      "value": 114.89
+    },
+    "DTWEXBGS": {
+      "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
+      "date": "2026-09-18",
+      "value": 119.5133
+    },
+    "GFDEGDQ188S": {
+      "label": "Nợ công liên bang Mỹ / GDP (%)",
+      "date": "2026-01-01",
+      "value": 122.59387
+    },
+    "IRLTLT01GBM156N": {
+      "label": "Lợi suất dài hạn Anh (%)",
+      "date": "2026-08-01",
+      "value": 4.9886
+    },
+    "DFF": {
+      "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
+      "date": "2026-09-24",
+      "value": 3.88
+    },
+    "SP500": {
+      "label": "S&P 500",
+      "date": "2026-09-25",
+      "value": 7743.41
+    },
+    "IRLTLT01JPM156N": {
+      "label": "Lợi suất dài hạn Nhật (%)",
+      "date": "2026-08-01",
+      "value": 2.94
+    },
+    "M2SL": {
+      "label": "Cung tiền M2 (tỷ USD)",
+      "date": "2026-08-01",
+      "value": 23342.8
+    },
+    "STLFSI4": {
+      "label": "Chỉ số Căng thẳng Tài chính St. Louis",
+      "date": "2026-09-18",
+      "value": -0.9075
+    },
+    "WALCL": {
+      "label": "Tổng tài sản Fed (triệu USD)",
+      "date": "2026-09-23",
+      "value": 6747704
+    }
+  },
+  "suggestions": {
+    "bonds": {
+      "value": -1,
+      "reason": "Lợi suất 10 năm 4.40% → 5.18% (+78 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-09-24",
+      "confidence": "cao"
+    },
+    "stocks": {
+      "value": 1,
+      "reason": "S&P 500 +5.3% trong 3 tháng (7354 → 7743; ngưỡng ±3%).",
+      "asOf": "2026-09-25",
+      "confidence": "cao"
+    },
+    "usd": {
+      "value": 0,
+      "reason": "Chỉ số USD rộng -0.7% trong 3 tháng (ngưỡng ±1.5%).",
+      "asOf": "2026-09-18",
+      "confidence": "cao"
+    },
+    "oilTrend": {
+      "value": 1,
+      "reason": "Brent +51.8% trong 3 tháng (76 → 115 USD; ngưỡng ±5%).",
+      "asOf": "2026-09-22",
+      "confidence": "cao"
+    },
+    "oilMaturity": {
+      "value": "fresh",
+      "reason": "Xu hướng tăng của Dầu đã kéo dài khoảng 1 tháng (từ 9 tháng trở lên coi là \"Đã Kéo Dài\").",
+      "asOf": "2026-09-22",
+      "confidence": "trung bình"
+    },
+    "commodities": {
+      "value": 1,
+      "reason": "Chỉ số hàng hóa IMF -11.7% nhưng đã cũ (tháng 07/2026, trễ ~89 ngày) và ngược chiều Dầu Brent +51.8% (số liệu ngày) — tạm theo chiều của Dầu. Nên tự kiểm tra thêm kim loại/nông sản.",
+      "asOf": "2026-09-22",
+      "confidence": "thấp"
+    },
+    "fedCycle": {
+      "value": "hiking",
+      "reason": "Lãi suất Fed 3.64% → 3.88% trong 6 tháng (+0.24 điểm %; ngưỡng ±0,2).",
+      "asOf": "2026-09-24",
+      "confidence": "cao"
+    },
+    "creditInputs": {
+      "value": {
+        "m2yoy": 5.66,
+        "fedRate": 3.88,
+        "treasury10y": 5.18
+      },
+      "reason": "M2 YoY 5.66% (tháng 08/2026), lãi suất Fed 3.88%, lợi suất 10 năm 5.18%.",
+      "asOf": "2026-09-24",
+      "confidence": "cao"
+    },
+    "debtGdpLevel": {
+      "value": "above",
+      "reason": "Nợ liên bang/GDP 122.6% so với trung bình 10 năm 114.0% (+7.6%; lệch dưới ±3% coi là ngang bằng). Chỉ áp dụng cho phạm vi Mỹ/Thế Giới.",
+      "asOf": "2026-01-01",
+      "confidence": "trung bình"
+    },
+    "bondTrendMonths": {
+      "value": 13,
+      "reason": "Lợi suất 10 năm đã tăng liên tục (so với 6 tháng trước) khoảng 13 tháng.",
+      "asOf": "2026-09",
+      "confidence": "trung bình"
+    },
+    "bondTrendMaturity": {
+      "value": "extended",
+      "reason": "13 tháng — dưới 9 tháng là \"Mới Đảo Chiều\", 9-59 tháng \"Đã Kéo Dài\", từ 60 tháng \"Đã Vượt Quá 1 Chu Kỳ\".",
+      "asOf": "2026-09",
+      "confidence": "trung bình"
+    },
+    "bondPriceLevel": {
+      "value": "near_low",
+      "reason": "Lợi suất hiện ở bách phân vị 100 của 5 năm qua — lợi suất gần đỉnh, tức giá Trái Phiếu gần vùng THẤP nhiều năm.",
+      "asOf": "2026-09",
+      "confidence": "cao"
+    },
+    "globalYieldSync": {
+      "value": "no",
+      "reason": "Thay đổi lợi suất dài hạn 3 tháng — Đức +0.13, Nhật +0.29, Anh +0.05 điểm %. Không phải tất cả cùng tăng.",
+      "asOf": "2026-08-01",
+      "confidence": "trung bình"
+    },
+    "activeQE": {
+      "value": "no",
+      "reason": "Tổng tài sản Fed +2.1% trong 12 tháng (trên +5% coi là đang bơm QE).",
+      "asOf": "2026-09-23",
+      "confidence": "cao"
+    },
+    "usdFundingStress": {
+      "value": "no",
+      "reason": "Chỉ số Căng thẳng Tài chính St. Louis = -0.91 (trên 1 là căng thẳng rõ, dưới 0 là thấp hơn bình thường). Đây là chỉ báo đại diện, không đo trực tiếp thanh khoản USD.",
+      "asOf": "2026-09-18",
+      "confidence": "trung bình"
+    },
+    "eci": {
+      "value": {
+        "current": 3.14,
+        "previous": 3.32
+      },
+      "reason": "ECI tiền lương tư nhân: 3.14%/năm (quý 04/2026) so với 3.32%/năm quý trước.",
+      "asOf": "2026-04-01",
+      "confidence": "cao"
+    },
+    "usdContext": {
+      "value": "normal",
+      "reason": "USD Đi Ngang, Cổ Phiếu Tăng — không khớp đầu nào của Dollar Smile, giữ \"Bình Thường\".",
+      "asOf": null,
+      "confidence": "trung bình"
+    },
+    "commodityCause": {
+      "value": "cost_push",
+      "reason": "Dầu tăng +51.8% vượt xa phần hàng hóa còn lại (-11.7%) — áp lực đến từ năng lượng/nguồn cung, không phải cầu chung.",
+      "asOf": "2026-09-22",
+      "confidence": "trung bình"
+    }
+  },
+  "errors": []
+}
