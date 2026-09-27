@@ -1,11 +1,16 @@
-# Tự động tải số liệu FRED mỗi ngày và cập nhật data/market.json (nguồn đề xuất cho trang).
-# Có thể chạy tay: tab Actions trên GitHub → "Cập nhật số liệu thị trường" → Run workflow.
+# Tự động tải số liệu FRED (Mỹ) + SBV (Việt Nam) mỗi ngày và cập nhật data/ (nguồn đề xuất cho trang).
+# Có thể chạy tay: nút "Làm mới số liệu" trên app, hoặc tab Actions → "Cập nhật số liệu thị trường" → Run workflow.
 name: Cập nhật số liệu thị trường
 
 on:
   schedule:
     - cron: '30 23 * * *'   # 23:30 UTC = 06:30 sáng giờ Việt Nam, sau khi FRED cập nhật số liệu ngày hôm trước
   workflow_dispatch:
+  push:                     # chạy ngay khi sửa script/workflow để kiểm tra
+    branches: [main]
+    paths:
+      - scripts/fetch-market.mjs
+      - .github/workflows/update-market.yml
 
 permissions:
   contents: write
@@ -25,18 +30,20 @@ jobs:
         with:
           node-version: 24
 
-      - name: Tải số liệu FRED và tính đề xuất
+      - name: Tải số liệu FRED + SBV và tính đề xuất
         run: node scripts/fetch-market.mjs
 
       - name: Commit nếu số liệu thay đổi
         run: |
-          # Bỏ qua trường generatedAt khi so sánh, để không tạo commit mỗi ngày nếu số liệu không đổi
-          if git diff --quiet -I '"generatedAt"' -- data/market.json && git ls-files --error-unmatch data/market.json >/dev/null 2>&1; then
+          git add -N data/
+          # Bỏ qua các dòng dấu thời gian khi so sánh, để không tạo commit mỗi ngày nếu số liệu không đổi
+          if git diff --quiet -I '"generatedAt"' -I '"fetchedAt"' -- data/; then
             echo "Số liệu không đổi."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/market.json
+          git add data/
           git commit -m "Cập nhật số liệu thị trường $(date -u +%Y-%m-%d)"
+          git pull --rebase
           git push

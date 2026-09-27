@@ -1,0 +1,14 @@
+[
+ {
+  "date": "2026-09-27",
+  "refi": 4.5,
+  "refiSince": "2023-03-19",
+  "rediscount": 3,
+  "ibDate": "2026-09-24",
+  "ibOvernight": 1.1,
+  "ibW1": 5.06,
+  "ibM3": 7.2,
+  "creditMonth": "2026-07",
+  "creditYoy": 17.7
+ }
+]

@@ -6603,6 +6603,20 @@ const SUGGESTION_DEFS = {
                        });
                      },
                      fmt:v=>`${v.m2yoy ?? '—'}% · ${v.fedRate ?? '—'}% · ${v.treasury10y ?? '—'}%` },
+  // Việt Nam (SBV) — áp dụng thì tự bật lăng kính Thị Trường Mới Nổi, vì panel Việt Nam chỉ hiện khi lăng kính bật
+  vnRateCycle:    { tab:'usdfed', label:'🇻🇳 Chu kỳ điều hành SBV', get:()=>vnRateCycle,
+                    set:v=>{ vnRateCycle = v; emergingMarketLens = true; }, fmt:labelFrom(VN_RATE_CYCLES) },
+  vnCreditInputs: { tab:'usdfed', label:'🇻🇳 Tín dụng YoY · Lãi suất điều hành SBV',
+                    get:()=>({ creditYoy:vnCreditInputs.creditYoy, policyRate:vnCreditInputs.policyRate }),
+                    set:v=>{
+                      vnCreditInputs = { creditYoy:v.creditYoy, policyRate:v.policyRate, updatedAt:new Date() };
+                      if(v.policyRate) vnCreditBand = computeBandFromRatio(v.creditYoy / v.policyRate);
+                      emergingMarketLens = true;
+                      [['vnCreditYoyInput',v.creditYoy],['vnPolicyRateInput',v.policyRate]].forEach(([id,val])=>{
+                        const el = document.getElementById(id); if(el) el.value = val;
+                      });
+                    },
+                    fmt:v=>`${v.creditYoy}% · ${v.policyRate}%` },
 
   debtGdpLevel:      { tab:'cycle', label:'Nợ/GDP so với TB 10 năm (Mỹ)', get:()=>debtGdpLevel, set:v=>{ debtGdpLevel = v; debtGdpScope = 'world'; }, fmt:labelFrom(DEBT_GDP_LEVELS) },
   bondTrendMaturity: { tab:'cycle', label:'Độ dài xu hướng Trái Phiếu', get:()=>bondTrendMaturity, set:v=>{ bondTrendMaturity = v; }, fmt:v=>MATURITY_LABEL[v] },

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-27T13:44:01.996Z",
+  "generatedAt": "2026-09-27T13:51:11.265Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -9,75 +9,75 @@
     "oilPct": 5
   },
   "series": {
-    "DCOILBRENTEU": {
-      "label": "Dầu Brent (USD/thùng)",
-      "date": "2026-09-22",
-      "value": 114.89
-    },
-    "STLFSI4": {
-      "label": "Chỉ số Căng thẳng Tài chính St. Louis",
-      "date": "2026-09-18",
-      "value": -0.9075
+    "GFDEGDQ188S": {
+      "label": "Nợ công liên bang Mỹ / GDP (%)",
+      "date": "2026-01-01",
+      "value": 122.59387
     },
     "IRLTLT01GBM156N": {
       "label": "Lợi suất dài hạn Anh (%)",
       "date": "2026-08-01",
       "value": 4.9886
     },
-    "IRLTLT01JPM156N": {
-      "label": "Lợi suất dài hạn Nhật (%)",
-      "date": "2026-08-01",
-      "value": 2.94
-    },
-    "DGS10": {
-      "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-09-24",
-      "value": 5.18
-    },
-    "DFF": {
-      "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-09-24",
-      "value": 3.88
-    },
-    "WALCL": {
-      "label": "Tổng tài sản Fed (triệu USD)",
-      "date": "2026-09-23",
-      "value": 6747704
-    },
-    "IRLTLT01DEM156N": {
-      "label": "Lợi suất dài hạn Đức (%)",
-      "date": "2026-08-01",
-      "value": 3.18
-    },
-    "GFDEGDQ188S": {
-      "label": "Nợ công liên bang Mỹ / GDP (%)",
-      "date": "2026-01-01",
-      "value": 122.59387
-    },
-    "SP500": {
-      "label": "S&P 500",
-      "date": "2026-09-25",
-      "value": 7743.41
-    },
-    "DTWEXBGS": {
-      "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
-      "date": "2026-09-18",
-      "value": 119.5133
+    "PALLFNFINDEXM": {
+      "label": "Chỉ số giá toàn bộ hàng hóa IMF (tháng)",
+      "date": "2026-07-01",
+      "value": 193.2044744461968
     },
     "M2SL": {
       "label": "Cung tiền M2 (tỷ USD)",
       "date": "2026-08-01",
       "value": 23342.8
     },
-    "PALLFNFINDEXM": {
-      "label": "Chỉ số giá toàn bộ hàng hóa IMF (tháng)",
-      "date": "2026-07-01",
-      "value": 193.2044744461968
+    "WALCL": {
+      "label": "Tổng tài sản Fed (triệu USD)",
+      "date": "2026-09-23",
+      "value": 6747704
+    },
+    "DGS10": {
+      "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
+      "date": "2026-09-24",
+      "value": 5.18
+    },
+    "DTWEXBGS": {
+      "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
+      "date": "2026-09-18",
+      "value": 119.5133
+    },
+    "IRLTLT01JPM156N": {
+      "label": "Lợi suất dài hạn Nhật (%)",
+      "date": "2026-08-01",
+      "value": 2.94
     },
     "ECIWAG": {
       "label": "Chỉ số Chi Phí Tiền Lương ECI (tư nhân)",
       "date": "2026-04-01",
       "value": 179.01
+    },
+    "IRLTLT01DEM156N": {
+      "label": "Lợi suất dài hạn Đức (%)",
+      "date": "2026-08-01",
+      "value": 3.18
+    },
+    "STLFSI4": {
+      "label": "Chỉ số Căng thẳng Tài chính St. Louis",
+      "date": "2026-09-18",
+      "value": -0.9075
+    },
+    "DCOILBRENTEU": {
+      "label": "Dầu Brent (USD/thùng)",
+      "date": "2026-09-22",
+      "value": 114.89
+    },
+    "DFF": {
+      "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
+      "date": "2026-09-24",
+      "value": 3.88
+    },
+    "SP500": {
+      "label": "S&P 500",
+      "date": "2026-09-25",
+      "value": 7743.41
     }
   },
   "suggestions": {
@@ -195,6 +195,51 @@
       "reason": "Dầu tăng +51.8% vượt xa phần hàng hóa còn lại (-11.7%) — áp lực đến từ năng lượng/nguồn cung, không phải cầu chung.",
       "asOf": "2026-09-22",
       "confidence": "trung bình"
+    },
+    "vnCreditInputs": {
+      "value": {
+        "creditYoy": 17.7,
+        "policyRate": 4.5
+      },
+      "reason": "Dư nợ tín dụng toàn nền kinh tế tháng 07/2026: 20.262.110 tỷ đồng, tăng 17.7% so với cùng kỳ (8.97% từ đầu năm). Lãi suất điều hành (tái cấp vốn) 4.5%.",
+      "asOf": "2026-07-31",
+      "confidence": "cao"
+    },
+    "vnRateCycle": {
+      "value": "normal",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (42 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày 24/09/2026: qua đêm 1.1%, 1 tuần 5.06%, 3 tháng 7.2%.",
+      "asOf": "2023-03-19",
+      "confidence": "cao"
+    }
+  },
+  "vn": {
+    "ok": true,
+    "fetchedAt": "2026-09-27T13:51:11.247Z",
+    "rates": {
+      "refi": {
+        "value": 4.5,
+        "decision": "1123/QĐ-NHNN ngày 16/06/2023",
+        "since": "2023-03-19"
+      },
+      "rediscount": {
+        "value": 3,
+        "decision": "1123/QĐ-NHNN ngày 16/06/2023",
+        "since": "2023-03-19"
+      },
+      "interbank": {
+        "date": "2026-09-24",
+        "overnight": 1.1,
+        "w1": 5.06,
+        "m1": 6.25,
+        "m3": 7.2
+      }
+    },
+    "credit": {
+      "month": "2026-07",
+      "date": "2026-07-31",
+      "total": 20262110,
+      "ytd": 8.97,
+      "yoy": 17.7
     }
   },
   "errors": []

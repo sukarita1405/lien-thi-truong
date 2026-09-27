@@ -5,7 +5,8 @@
 // Chạy tay:  node scripts/fetch-market.mjs
 // Không cần thư viện ngoài, không cần API key (dùng endpoint CSV công khai fredgraph.csv).
 
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir, readFile } from 'node:fs/promises';
+import https from 'node:https';
 
 const FRED = id => `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}&cosd=2010-01-01`;
 
@@ -72,6 +73,120 @@ const viDate = d => d.length === 7 ? `${d.slice(5)}/${d.slice(0, 4)}` : `${d.sli
 // Ngưỡng "Đi Ngang" cho thay đổi 3 tháng — dưới ngưỡng coi là chưa có xu hướng rõ
 const TH = { yieldBp: 25, stocksPct: 3, usdPct: 1.5, commPct: 3, oilPct: 5 };
 const dir = (x, th) => x > th ? 1 : (x < -th ? -1 : 0);
+
+// =====================================================================================
+// VIỆT NAM — Ngân hàng Nhà nước (sbv.gov.vn). SBV có tường lửa chặn truy cập không giống trình duyệt, nên gửi
+// header như trình duyệt và giữ cookie giữa các request. Nếu SBV lỗi/chặn, giữ lại số liệu VN của lần trước
+// (đánh dấu cũ) thay vì làm hỏng cả file.
+// =====================================================================================
+const SBV = 'https://sbv.gov.vn';
+const BROWSER_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36',
+  'Accept-Language': 'vi-VN,vi;q=0.9,en;q=0.8',
+};
+// Dùng module https gốc thay vì fetch(): fetch() của Node tự thêm header "sec-fetch-mode: cors", bị tường lửa
+// SBV nhận ra là không phải trình duyệt và trả trang "Request Rejected".
+const sbvCookies = new Map();
+function httpsGet(url, accept){
+  return new Promise((resolve, reject) => {
+    const cookie = [...sbvCookies].map(([k, v]) => `${k}=${v}`).join('; ');
+    const req = https.get(url, { headers: { ...BROWSER_HEADERS, Accept: accept, ...(cookie ? { Cookie: cookie } : {}) }, timeout: 30000 }, res => {
+      for(const c of res.headers['set-cookie'] || []){ const [kv] = c.split(';'); const i = kv.indexOf('='); sbvCookies.set(kv.slice(0, i), kv.slice(i + 1)); }
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', d => body += d);
+      res.on('end', () => resolve({ status: res.statusCode, location: res.headers.location, body }));
+    });
+    req.on('timeout', () => req.destroy(new Error('hết thời gian chờ')));
+    req.on('error', reject);
+  });
+}
+async function sbvFetch(path, accept = 'text/html', tries = 3){
+  for(let i = 1; i <= tries; i++){
+    try{
+      let url = SBV + path;
+      for(let hop = 0; hop < 5; hop++){ // tự theo redirect để giữ cookie
+        const res = await httpsGet(url, accept);
+        if(res.status >= 300 && res.status < 400 && res.location){ url = new URL(res.location, url).href; continue; }
+        if(res.status !== 200) throw new Error(`HTTP ${res.status}`);
+        if(res.body.includes('Request Rejected')) throw new Error('bị tường lửa SBV chặn');
+        return res.body;
+      }
+      throw new Error('quá nhiều redirect');
+    }catch(e){
+      if(i === tries) throw new Error(`SBV ${path.slice(0, 40)}: ${e.message}`);
+      await new Promise(r => setTimeout(r, 3000 * i));
+    }
+  }
+}
+const vnNum = s => +String(s).trim().replace(/\./g, '').replace(',', '.').replace('%', ''); // "18.594.930,02" -> 18594930.02
+const htmlText = h => h.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '')
+  .replace(/<[^>]+>/g, '|').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').replace(/(\| ?)+/g, '|');
+
+// Lãi suất NHNN quy định (tái cấp vốn, tái chiết khấu) + lãi suất liên ngân hàng — cùng 1 trang
+// Tường lửa SBV chỉ cho vào trang con khi đã có cookie phiên cấp từ trang chủ — "làm nóng" 1 lần trước
+let sbvWarm = null;
+function sbvWarmUp(){
+  if(!sbvWarm) sbvWarm = sbvFetch('/vi/trang-chu').catch(e => { sbvWarm = null; throw e; });
+  return sbvWarm;
+}
+
+async function fetchSbvRates(){
+  await sbvWarmUp();
+  const t = htmlText(await sbvFetch('/vi/l%C3%A3i-su%E1%BA%A5t1'));
+  const grab = (label) => {
+    const m = t.match(new RegExp(label + '\\|([0-9.,]+)%\\|([^|]*)\\|(\\d{2}/\\d{2}/\\d{4})'));
+    return m ? { value: vnNum(m[1]), decision: m[2].trim(), since: m[3].split('/').reverse().join('-') } : null;
+  };
+  const refi = grab('Lãi suất tái cấp vốn');
+  const rediscount = grab('Lãi suất tái chiết khấu');
+  if(!refi) throw new Error('không đọc được lãi suất tái cấp vốn (SBV có thể đã đổi giao diện)');
+  const ibDate = (t.match(/Lãi suất thị trường liên ngân hàng\|Ngày áp dụng: \|(\d{2}\/\d{2}\/\d{4})/) || [])[1];
+  const ib = {};
+  for(const [key, label] of [['overnight', 'Qua đêm'], ['w1', '1 Tuần'], ['m1', '1 Tháng'], ['m3', '3 Tháng']]){
+    const m = t.match(new RegExp('\\|' + label + '\\|([0-9,]+) ?\\|'));
+    if(m) ib[key] = vnNum(m[1]);
+  }
+  return { refi, rediscount, interbank: { date: ibDate ? ibDate.split('/').reverse().join('-') : null, ...ib } };
+}
+
+// Dư nợ tín dụng đối với nền kinh tế (tháng) — API nội bộ mà chính trang SBV dùng để vẽ biểu đồ
+async function fetchSbvCredit(){
+  await sbvWarmUp();
+  const from = `${new Date().getUTCFullYear() - 2}-01-01`;
+  const filter = `status eq 0 and Date62813077 ne '' and Date62813077 ge '${from}' and Date62813077 le '2099-12-31'`;
+  const rows = [];
+  for(let page = 1; page <= 5; page++){
+    const txt = await sbvFetch(`/o/article/v1.0/articles?scopeKey=20117&contentStructureId=10034332&pageSize=200&page=${page}&filter=${encodeURIComponent(filter)}`, 'application/json');
+    const j = JSON.parse(txt);
+    for(const a of j.articles || []){
+      const f = a.fields || {};
+      if(f.Date62813077 && f.soDuTongCong) rows.push({ date: f.Date62813077, total: vnNum(f.soDuTongCong), ytd: vnNum(f.tocDoTangGiamTongCong), modified: a.dateModified });
+    }
+    if(!j.lastPage || page >= j.lastPage) break;
+  }
+  // Dữ liệu SBV có lỗi nhập liệu: trùng tháng, ngày ghi nhầm (vd 2026-03-20 lặp lại số tháng 1). Làm sạch:
+  // mỗi tháng giữ bản ghi có NGÀY muộn nhất; cùng ngày thì giữ số dư lớn nhất (bản ghi nhỏ bất thường là số của
+  // một ngành bị nhập nhầm vào ô tổng). Rồi loại điểm lệch >8% so với tháng liền trước (tín dụng không nhảy như vậy).
+  const byMonth = new Map();
+  for(const r of rows){
+    const k = r.date.slice(0, 7), cur = byMonth.get(k);
+    if(!cur || r.date > cur.date || (r.date === cur.date && r.total > cur.total)) byMonth.set(k, r);
+  }
+  const months = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([month, r]) => ({ month, ...r }));
+  const clean = [];
+  for(const m of months){
+    const prev = clean[clean.length - 1];
+    if(prev && Math.abs(m.total / prev.total - 1) > 0.08) continue;
+    clean.push(m);
+  }
+  if(clean.length < 13) throw new Error(`chỉ có ${clean.length} tháng dữ liệu tín dụng, cần ≥ 13 để tính YoY`);
+  const last = clean[clean.length - 1];
+  const [y, mo] = last.month.split('-');
+  const yearAgo = clean.find(m => m.month === `${+y - 1}-${mo}`);
+  if(!yearAgo) throw new Error(`thiếu dữ liệu tháng ${mo}/${+y - 1} để tính YoY`);
+  return { month: last.month, date: last.date, total: last.total, ytd: last.ytd, yoy: +((last.total / yearAgo.total - 1) * 100).toFixed(2) };
+}
 
 async function main(){
   const data = {};
@@ -221,6 +336,52 @@ async function main(){
     else if(commDir === 1 && stocksDir === 1) put('commodityCause', 'demand', 'Hàng hóa tăng rộng cùng lúc với Cổ Phiếu — dấu hiệu cầu thực đang kéo giá.', null, 'trung bình');
   }
 
+  // ---- VIỆT NAM (SBV) ----
+  const prevFile = await readFile(new URL('../data/market.json', import.meta.url), 'utf8').then(JSON.parse).catch(() => null);
+  const histUrl = new URL('../data/vn-history.json', import.meta.url);
+  const history = await readFile(histUrl, 'utf8').then(JSON.parse).catch(() => []);
+  let vn = { ok: false };
+  try{
+    const rates = await fetchSbvRates();   // tuần tự, không song song — tránh bị tường lửa coi là bot
+    const credit = await fetchSbvCredit();
+    vn = { ok: true, fetchedAt: new Date().toISOString(), rates, credit };
+    // Lưu lịch sử mỗi ngày (1 bản ghi/ngày) — cần để biết SBV vừa TĂNG hay GIẢM khi lãi suất điều hành đổi, và để
+    // sau này đọc xu hướng lãi suất liên ngân hàng
+    const today = new Date().toISOString().slice(0, 10);
+    const rec = { date: today, refi: rates.refi.value, refiSince: rates.refi.since, rediscount: rates.rediscount ? rates.rediscount.value : null,
+                  ibDate: rates.interbank.date, ibOvernight: rates.interbank.overnight ?? null, ibW1: rates.interbank.w1 ?? null, ibM3: rates.interbank.m3 ?? null,
+                  creditMonth: credit.month, creditYoy: credit.yoy };
+    const idx = history.findIndex(h => h.date === today);
+    if(idx >= 0) history[idx] = rec; else history.push(rec);
+    history.sort((a, b) => a.date.localeCompare(b.date));
+    await mkdir(new URL('../data/', import.meta.url), { recursive: true });
+    await writeFile(histUrl, JSON.stringify(history, null, 1) + '\n');
+  }catch(e){
+    errors.push(e.message);
+    // Giữ số liệu VN lần trước, đánh dấu cũ
+    if(prevFile && prevFile.vn && prevFile.vn.ok) vn = { ...prevFile.vn, stale: true, staleReason: e.message };
+  }
+  if(vn.ok){
+    const { rates, credit } = vn;
+    const staleNote = vn.stale ? ` ⚠ Không tải được SBV lần này (${vn.staleReason}) — đang dùng số liệu lấy lúc ${vn.fetchedAt.slice(0, 10)}.` : '';
+    const conf = vn.stale ? 'thấp' : 'cao';
+    const creditMonthVi = `${credit.month.slice(5)}/${credit.month.slice(0, 4)}`;
+    put('vnCreditInputs', { creditYoy: credit.yoy, policyRate: rates.refi.value },
+      `Dư nợ tín dụng toàn nền kinh tế tháng ${creditMonthVi}: ${Math.round(credit.total).toLocaleString('vi-VN')} tỷ đồng, tăng ${credit.yoy}% so với cùng kỳ (${credit.ytd}% từ đầu năm). Lãi suất điều hành (tái cấp vốn) ${rates.refi.value}%.${staleNote}`,
+      credit.date, conf);
+    // Chu kỳ SBV: tái cấp vốn đổi trong 12 tháng qua thì so với giá trị trước đó (trong lịch sử đã lưu); không đổi
+    // hơn 12 tháng thì "Bình Thường"
+    const daysSince = (Date.now() - new Date(rates.refi.since)) / 864e5;
+    const ibText = rates.interbank.w1 != null ? ` Liên ngân hàng ngày ${viDate(rates.interbank.date || '')}: qua đêm ${rates.interbank.overnight}%, 1 tuần ${rates.interbank.w1}%, 3 tháng ${rates.interbank.m3}%.` : '';
+    if(daysSince > 365){
+      put('vnRateCycle', 'normal', `Lãi suất tái cấp vốn giữ nguyên ${rates.refi.value}% từ ${viDate(rates.refi.since)} (${Math.floor(daysSince / 30)} tháng) — chưa có chu kỳ tăng/giảm chính thức.${ibText}${staleNote}`, rates.refi.since, conf);
+    } else {
+      const before = [...history].reverse().find(h => h.refi != null && h.refi !== rates.refi.value);
+      if(before) put('vnRateCycle', rates.refi.value > before.refi ? 'hiking' : 'cutting',
+        `SBV ${rates.refi.value > before.refi ? 'TĂNG' : 'GIẢM'} lãi suất tái cấp vốn từ ${before.refi}% ${rates.refi.value > before.refi ? 'lên' : 'xuống'} ${rates.refi.value}% (áp dụng từ ${viDate(rates.refi.since)}).${ibText}${staleNote}`, rates.refi.since, conf);
+    }
+  }
+
   // Quá nhiều chuỗi lỗi — dừng TRƯỚC khi ghi, để không đè file cũ đầy đủ bằng một file thiếu
   if(Object.keys(data).length < Object.keys(SERIES).length / 2){
     console.error('Lỗi quá nhiều, giữ nguyên data/market.json cũ:', errors.join('; '));
@@ -233,6 +394,7 @@ async function main(){
     thresholds: TH,
     series: Object.fromEntries(Object.entries(data).map(([id, s]) => [id, { label: SERIES[id], date: last(s).date, value: last(s).value }])),
     suggestions: sug,
+    vn,
     errors,
   };
   await mkdir(new URL('../data/', import.meta.url), { recursive: true });
