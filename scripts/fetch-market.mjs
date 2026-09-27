@@ -392,7 +392,7 @@ async function main(){
     generatedAt: new Date().toISOString(),
     source: 'FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)',
     thresholds: TH,
-    series: Object.fromEntries(Object.entries(data).map(([id, s]) => [id, { label: SERIES[id], date: last(s).date, value: last(s).value }])),
+    series: Object.fromEntries(Object.keys(SERIES).filter(id => data[id]).map(id => [id, data[id]]).map(([id, s]) => [id, { label: SERIES[id], date: last(s).date, value: last(s).value }])),
     suggestions: sug,
     vn,
     errors,
