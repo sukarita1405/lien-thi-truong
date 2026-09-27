@@ -1573,6 +1573,22 @@
   .mb-apply:hover,.sug-apply:hover{filter:brightness(1.08);}
   .sug-apply[disabled]{opacity:.45;cursor:not-allowed;}
   .sug-ok{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--usd);white-space:nowrap;}
+  .mb-refresh{
+    font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;
+    color:var(--bonds);background:var(--panel);border:1px solid rgba(78,127,168,0.5);border-radius:999px;padding:6px 13px;
+  }
+  .mb-refresh:hover{border-color:var(--bonds);}
+  .mb-refresh[disabled]{opacity:.6;cursor:wait;}
+  .mb-status{flex-basis:100%;font-size:12.5px;line-height:1.5;}
+  .mb-status.mb-ok{color:var(--usd);}
+  .mb-status.mb-error{color:var(--diverge);}
+  .mb-status a,.mb-panel a{color:var(--bonds);}
+  .mb-panel{flex-basis:100%;font-size:12.5px;line-height:1.6;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+  .mb-panel code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+  .mb-token-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .mb-token-row input{flex:1;min-width:180px;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--panel-2);color:var(--text);}
+  .mb-note{color:var(--muted);font-size:11.5px;margin-top:6px;}
+  .mb-link{font:inherit;color:var(--diverge);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;}
   .sug-hint{
     display:block;width:100%;margin-top:8px;padding:5px 8px;border-radius:6px;cursor:pointer;text-align:left;
     font:inherit;font-size:11.5px;color:var(--bonds);background:rgba(78,127,168,0.08);border:1px dashed rgba(78,127,168,0.45);
@@ -6632,6 +6648,136 @@ function applyAllSuggestions(){
 
 const viDate = d => d ? d.slice(0,10).split('-').reverse().join('/') : '—';
 const CONF_HEX = { 'cao':'#5F8E54', 'trung bình':'#EDA743', 'thấp':'#C0503A' };
+const viDateTime = iso => {
+  const d = new Date(iso);
+  if(isNaN(d)) return viDate(iso);
+  const p = n => String(n).padStart(2, '0');
+  return `${p(d.getHours())}:${p(d.getMinutes())} ${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
+};
+
+// ---- Nút "Làm mới số liệu": chạy workflow GitHub Actions ngay trên app ----
+// Chạy workflow cần token GitHub. Trang này công khai nên KHÔNG BAO GIỜ nhúng token vào mã nguồn — chủ repo tự
+// dán token của mình, token chỉ lưu trong localStorage của trình duyệt đó. Chưa có token thì nút mở trang GitHub
+// Actions để bấm "Run workflow" thủ công (chỉ chủ repo mới chạy được).
+const GH_REPO = 'sukarita1405/lien-thi-truong';
+const GH_WORKFLOW = 'update-market.yml';
+const GH_ACTIONS_URL = `https://github.com/${GH_REPO}/actions/workflows/${GH_WORKFLOW}`;
+const GH_TOKEN_KEY = 'ltt.githubToken';
+const refreshState = { busy:false, msg:'', kind:'info', panelOpen:false };
+
+function getGhToken(){ try { return localStorage.getItem(GH_TOKEN_KEY) || ''; } catch(e){ return ''; } }
+function setGhToken(t){ try { t ? localStorage.setItem(GH_TOKEN_KEY, t) : localStorage.removeItem(GH_TOKEN_KEY); } catch(e){} }
+function setRefreshStatus(msg, kind){ refreshState.msg = msg; refreshState.kind = kind || 'info'; renderSuggestions(); }
+
+function refreshPanelHtml(){
+  const hasToken = !!getGhToken();
+  return `<div class="mb-panel">
+    ${hasToken ? `<div>✓ Trình duyệt này đã lưu token GitHub. <button type="button" class="mb-link" id="ghTokenClear">Xóa token</button></div>` : `
+    <div><b>Cách 1 — nhanh, không cần cài gì:</b> <a href="${GH_ACTIONS_URL}" target="_blank" rel="noopener">mở GitHub Actions ↗</a> rồi bấm <b>Run workflow</b>. Khoảng 1-2 phút sau tải lại trang này.</div>
+    <div style="margin-top:10px"><b>Cách 2 — chạy thẳng trên app (chỉ dành cho chủ repo):</b> tạo một
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained token ↗</a>
+      chỉ cho repo <code>lien-thi-truong</code>, quyền <b>Actions: Read and write</b>, rồi dán vào đây. Token chỉ lưu trong trình duyệt này, không gửi đi đâu ngoài GitHub.</div>
+    <div class="mb-token-row">
+      <input type="password" id="ghTokenInput" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+      <button type="button" class="mb-apply" id="ghTokenSave">Lưu &amp; chạy</button>
+    </div>
+    <div class="mb-note">Không dùng cách 2 trên máy tính dùng chung.</div>`}
+  </div>`;
+}
+
+function bindRefreshControls(){
+  const btn = document.getElementById('refreshDataBtn');
+  if(btn) btn.addEventListener('click', ()=>{
+    if(getGhToken()) runRefreshWorkflow();
+    else { refreshState.panelOpen = !refreshState.panelOpen; renderSuggestions(); }
+  });
+  const save = document.getElementById('ghTokenSave');
+  if(save) save.addEventListener('click', ()=>{
+    const t = document.getElementById('ghTokenInput').value.trim();
+    if(!t) return;
+    setGhToken(t);
+    refreshState.panelOpen = false;
+    runRefreshWorkflow();
+  });
+  const clear = document.getElementById('ghTokenClear');
+  if(clear) clear.addEventListener('click', ()=>{ setGhToken(''); setRefreshStatus('Đã xóa token khỏi trình duyệt này.', 'info'); });
+}
+
+async function ghApi(path, opts){
+  const res = await fetch(`https://api.github.com/repos/${GH_REPO}${path}`, Object.assign({
+    headers: { 'Accept':'application/vnd.github+json', 'Authorization':`Bearer ${getGhToken()}`, 'X-GitHub-Api-Version':'2022-11-28' },
+  }, opts || {}));
+  if(res.status === 401 || res.status === 403 || res.status === 404){
+    const e = new Error('auth'); e.status = res.status; throw e;
+  }
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  return res.status === 204 ? null : res.json();
+}
+const sleep = ms => new Promise(r=>setTimeout(r, ms));
+
+async function loadMarketData(){
+  // ?t= để vượt qua bộ nhớ đệm CDN của GitHub Pages (giữ file tới ~10 phút)
+  const r = await fetch(`data/market.json?t=${Date.now()}`, { cache:'no-store' });
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+async function runRefreshWorkflow(){
+  if(refreshState.busy) return;
+  refreshState.busy = true;
+  const before = marketData ? marketData.generatedAt : null;
+  try{
+    setRefreshStatus('Đang gửi lệnh chạy workflow lên GitHub…');
+    // Ghi nhớ id lượt chạy lớn nhất TRƯỚC khi gửi lệnh — lượt mới là lượt có id lớn hơn (không so thời gian, vì
+    // đồng hồ máy người dùng có thể lệch với GitHub)
+    const prev = await ghApi(`/actions/workflows/${GH_WORKFLOW}/runs?per_page=1`);
+    const lastId = (prev.workflow_runs && prev.workflow_runs[0]) ? prev.workflow_runs[0].id : 0;
+    await ghApi(`/actions/workflows/${GH_WORKFLOW}/dispatches`, { method:'POST', body: JSON.stringify({ ref:'main' }) });
+
+    // Chờ lượt chạy vừa tạo xuất hiện rồi chạy xong (thường 30-60 giây)
+    let run = null;
+    for(let i = 0; i < 60; i++){
+      await sleep(5000);
+      const list = await ghApi(`/actions/workflows/${GH_WORKFLOW}/runs?event=workflow_dispatch&per_page=5`);
+      run = (list.workflow_runs || []).find(r=>r.id > lastId) || null;
+      if(!run){ setRefreshStatus('Đang chờ GitHub khởi động workflow…'); continue; }
+      if(run.status === 'completed') break;
+      setRefreshStatus(`Workflow đang chạy (${run.status === 'queued' ? 'xếp hàng' : 'tải số liệu FRED'})…`);
+    }
+    if(!run || run.status !== 'completed') throw new Error('timeout-run');
+    if(run.conclusion !== 'success'){
+      setRefreshStatus(`Workflow kết thúc với lỗi (${run.conclusion}). <a href="${run.html_url}" target="_blank" rel="noopener">Xem chi tiết ↗</a>`, 'error');
+      return;
+    }
+
+    // Workflow chỉ commit khi số liệu thật sự đổi; sau commit, GitHub Pages cần thêm ~30-60 giây để xuất bản
+    for(let i = 0; i < 24; i++){
+      setRefreshStatus('Workflow xong — đang chờ GitHub Pages xuất bản số liệu mới…');
+      await sleep(5000);
+      const d = await loadMarketData().catch(()=>null);
+      if(d && d.generatedAt !== before){
+        marketData = d; marketDataError = null;
+        setRefreshStatus(`✓ Đã tải số liệu mới (${viDateTime(d.generatedAt)}). Xem các đề xuất bên dưới rồi bấm Áp dụng nếu đồng ý.`, 'ok');
+        renderOverview();
+        return;
+      }
+    }
+    setRefreshStatus('✓ Workflow chạy xong nhưng FRED chưa có số liệu nào mới so với lần trước — các đề xuất hiện tại vẫn là mới nhất.', 'ok');
+  }catch(e){
+    if(e.message === 'auth'){
+      setGhToken('');
+      refreshState.panelOpen = true;
+      setRefreshStatus(`Token không hợp lệ hoặc thiếu quyền <b>Actions: Read and write</b> cho repo này (lỗi ${e.status}) — đã xóa token, hãy tạo lại.`, 'error');
+    } else if(e.message === 'timeout-run'){
+      setRefreshStatus(`Workflow chạy lâu hơn dự kiến. <a href="${GH_ACTIONS_URL}" target="_blank" rel="noopener">Xem trên GitHub ↗</a>`, 'error');
+    } else {
+      setRefreshStatus(`Không làm mới được (${e.message}). <a href="${GH_ACTIONS_URL}" target="_blank" rel="noopener">Chạy trên GitHub ↗</a>`, 'error');
+    }
+  }finally{
+    refreshState.busy = false;
+    renderSuggestions();
+  }
+}
 
 function suggestionRowHtml(key){
   const s = getSuggestion(key), def = SUGGESTION_DEFS[key];
@@ -6655,18 +6801,26 @@ function renderSuggestions(){
   if(!bar) return;
   if(!marketData){
     bar.innerHTML = marketDataError
-      ? `<span class="mb-icon">📡</span><span class="mb-text">Chưa tải được số liệu thị trường (${marketDataError}). Bạn vẫn chọn tay bình thường.</span>`
+      ? `<span class="mb-icon">📡</span><span class="mb-text">Chưa tải được số liệu thị trường (${marketDataError}). Bạn vẫn chọn tay bình thường.</span>
+         <button type="button" class="mb-refresh" id="refreshDataBtn" ${refreshState.busy ? 'disabled' : ''}>${refreshState.busy ? '⏳ Đang làm mới…' : '🔄 Làm mới số liệu'}</button>
+         ${refreshState.msg ? `<div class="mb-status mb-${refreshState.kind}">${refreshState.msg}</div>` : ''}
+         ${refreshState.panelOpen ? refreshPanelHtml() : ''}`
       : `<span class="mb-icon">📡</span><span class="mb-text">Đang tải số liệu thị trường…</span>`;
+    bindRefreshControls();
     return;
   }
   const keys = SUGGESTION_ORDER.filter(k=>getSuggestion(k));
   const matched = keys.filter(suggestionMatches).length;
   bar.innerHTML = `
     <span class="mb-icon">📡</span>
-    <span class="mb-text">Đề xuất từ số liệu <b>FRED</b> cập nhật <b>${viDate(marketData.generatedAt)}</b> — <b>${matched}/${keys.length}</b> ô đang khớp đề xuất.</span>
-    ${matched < keys.length ? '<button type="button" class="mb-apply" id="applyAllSug">Áp dụng tất cả đề xuất</button>' : '<span class="sug-ok">✓ Đã khớp toàn bộ</span>'}`;
+    <span class="mb-text">Đề xuất từ số liệu <b>FRED</b> cập nhật <b>${viDateTime(marketData.generatedAt)}</b> — <b>${matched}/${keys.length}</b> ô đang khớp đề xuất.</span>
+    ${matched < keys.length ? '<button type="button" class="mb-apply" id="applyAllSug">Áp dụng tất cả đề xuất</button>' : '<span class="sug-ok">✓ Đã khớp toàn bộ</span>'}
+    <button type="button" class="mb-refresh" id="refreshDataBtn" ${refreshState.busy ? 'disabled' : ''}>${refreshState.busy ? '⏳ Đang làm mới…' : '🔄 Làm mới số liệu'}</button>
+    ${refreshState.msg ? `<div class="mb-status mb-${refreshState.kind}">${refreshState.msg}</div>` : ''}
+    ${refreshState.panelOpen ? refreshPanelHtml() : ''}`;
   const all = document.getElementById('applyAllSug');
   if(all) all.addEventListener('click', applyAllSuggestions);
+  bindRefreshControls();
 
   // Gợi ý ngắn dưới từng tài sản
   document.querySelectorAll('.ctrl .seg').forEach(seg=>{
@@ -6717,8 +6871,7 @@ function initSuggestions(){
     if(b && !b.disabled) applySuggestions(b.dataset.sug.split(','));
   });
   renderSuggestions();
-  fetch('data/market.json', { cache:'no-cache' })
-    .then(r=>{ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  loadMarketData()
     .then(d=>{ marketData = d; renderSuggestions(); renderOverview(); })
     .catch(e=>{ marketDataError = e.message; renderSuggestions(); });
 }
