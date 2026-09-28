@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-28T01:55:24.207Z",
+  "generatedAt": "2026-09-28T12:36:31.817Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -113,7 +113,7 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF -11.7% nhưng đã cũ (tháng 07/2026, trễ ~89 ngày) và ngược chiều Dầu Brent +51.8% (số liệu ngày) — tạm theo chiều của Dầu. Nên tự kiểm tra thêm kim loại/nông sản.",
+      "reason": "Chỉ số hàng hóa IMF -11.7% nhưng đã cũ (tháng 07/2026, trễ ~90 ngày) và ngược chiều Dầu Brent +51.8% (số liệu ngày) — tạm theo chiều của Dầu. Nên tự kiểm tra thêm kim loại/nông sản.",
       "asOf": "2026-09-22",
       "confidence": "thấp"
     },
@@ -207,14 +207,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (42 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày 24/09/2026: qua đêm 1.1%, 1 tuần 5.06%, 3 tháng 7.2%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (42 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày 25/09/2026: qua đêm 0.87%, 1 tuần 4.73%, 3 tháng 6.92%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-09-28T01:55:24.182Z",
+    "fetchedAt": "2026-09-28T12:36:31.596Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -227,11 +227,11 @@
         "since": "2023-03-19"
       },
       "interbank": {
-        "date": "2026-09-24",
-        "overnight": 1.1,
-        "w1": 5.06,
-        "m1": 6.25,
-        "m3": 7.2
+        "date": "2026-09-25",
+        "overnight": 0.87,
+        "w1": 4.73,
+        "m1": 6.78,
+        "m3": 6.92
       }
     },
     "credit": {
