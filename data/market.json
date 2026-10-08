@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-08T02:51:32.241Z",
+  "generatedAt": "2026-10-08T10:09:34.733Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -198,11 +198,11 @@
     },
     "vnCreditInputs": {
       "value": {
-        "creditYoy": 17.7,
+        "creditYoy": 17.38,
         "policyRate": 4.5
       },
-      "reason": "Dư nợ tín dụng toàn nền kinh tế tháng 07/2026: 20.262.110 tỷ đồng, tăng 17.7% so với cùng kỳ (8.97% từ đầu năm). Lãi suất điều hành (tái cấp vốn) 4.5%.",
-      "asOf": "2026-07-31",
+      "reason": "Dư nợ tín dụng toàn nền kinh tế tháng 08/2026: 20.489.434 tỷ đồng, tăng 17.38% so với cùng kỳ (10.19% từ đầu năm). Lãi suất điều hành (tái cấp vốn) 4.5%.",
+      "asOf": "2026-08-31",
       "confidence": "cao"
     },
     "vnRateCycle": {
@@ -214,7 +214,7 @@
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-10-08T02:51:32.216Z",
+    "fetchedAt": "2026-10-08T10:09:34.701Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -235,11 +235,11 @@
       }
     },
     "credit": {
-      "month": "2026-07",
-      "date": "2026-07-31",
-      "total": 20262110,
-      "ytd": 8.97,
-      "yoy": 17.7
+      "month": "2026-08",
+      "date": "2026-08-31",
+      "total": 20489434,
+      "ytd": 10.19,
+      "yoy": 17.38
     }
   },
   "errors": []
