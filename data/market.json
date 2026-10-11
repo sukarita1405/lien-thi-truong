@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T02:35:29.290Z",
+  "generatedAt": "2026-10-11T02:04:58.133Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -113,7 +113,7 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF -11.7% nhưng đã cũ (tháng 07/2026, trễ ~101 ngày) và ngược chiều Dầu Brent +74.8% (số liệu ngày) — tạm theo chiều của Dầu. Nên tự kiểm tra thêm kim loại/nông sản.",
+      "reason": "Chỉ số hàng hóa IMF -11.7% nhưng đã cũ (tháng 07/2026, trễ ~102 ngày) và ngược chiều Dầu Brent +74.8% (số liệu ngày) — tạm theo chiều của Dầu. Nên tự kiểm tra thêm kim loại/nông sản.",
       "asOf": "2026-10-06",
       "confidence": "thấp"
     },
@@ -214,7 +214,7 @@
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-10-10T02:35:29.269Z",
+    "fetchedAt": "2026-10-11T02:04:58.104Z",
     "rates": {
       "refi": {
         "value": 4.5,
