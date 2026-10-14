@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T03:45:24.444Z",
+  "generatedAt": "2026-10-14T02:05:22.620Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,12 +11,12 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-10-08",
-      "value": 5.22
+      "date": "2026-10-09",
+      "value": 5.24
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-10-08",
+      "date": "2026-10-12",
       "value": 3.88
     },
     "M2SL": {
@@ -26,13 +26,13 @@
     },
     "SP500": {
       "label": "S&P 500",
-      "date": "2026-10-12",
-      "value": 7807.24
+      "date": "2026-10-13",
+      "value": 7805.45
     },
     "DTWEXBGS": {
       "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
-      "date": "2026-10-02",
-      "value": 121.3848
+      "date": "2026-10-09",
+      "value": 121.6023
     },
     "DCOILBRENTEU": {
       "label": "Dầu Brent (USD/thùng)",
@@ -83,20 +83,20 @@
   "suggestions": {
     "bonds": {
       "value": -1,
-      "reason": "Lợi suất 10 năm 4.54% → 5.22% (+68 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-10-08",
+      "reason": "Lợi suất 10 năm 4.56% → 5.24% (+68 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-10-09",
       "confidence": "cao"
     },
     "stocks": {
       "value": 1,
-      "reason": "S&P 500 +3.9% trong 3 tháng (7515 → 7807; ngưỡng ±3%).",
-      "asOf": "2026-10-12",
+      "reason": "S&P 500 +3.5% trong 3 tháng (7544 → 7805; ngưỡng ±3%).",
+      "asOf": "2026-10-13",
       "confidence": "cao"
     },
     "usd": {
       "value": 0,
-      "reason": "Chỉ số USD rộng +0.6% trong 3 tháng (ngưỡng ±1.5%).",
-      "asOf": "2026-10-02",
+      "reason": "Chỉ số USD rộng +0.9% trong 3 tháng (ngưỡng ±1.5%).",
+      "asOf": "2026-10-09",
       "confidence": "cao"
     },
     "oilTrend": {
@@ -113,24 +113,24 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF -11.7% nhưng đã cũ (tháng 07/2026, trễ ~104 ngày) và ngược chiều Dầu Brent +74.8% (số liệu ngày) — tạm theo chiều của Dầu. Nên tự kiểm tra thêm kim loại/nông sản.",
+      "reason": "Chỉ số hàng hóa IMF -11.7% nhưng đã cũ (tháng 07/2026, trễ ~105 ngày) và ngược chiều Dầu Brent +74.8% (số liệu ngày) — tạm theo chiều của Dầu. Nên tự kiểm tra thêm kim loại/nông sản.",
       "asOf": "2026-10-06",
       "confidence": "thấp"
     },
     "fedCycle": {
       "value": "hiking",
       "reason": "Lãi suất Fed 3.64% → 3.88% trong 6 tháng (+0.24 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-10-08",
+      "asOf": "2026-10-12",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
         "m2yoy": 5.66,
         "fedRate": 3.88,
-        "treasury10y": 5.22
+        "treasury10y": 5.24
       },
-      "reason": "M2 YoY 5.66% (tháng 08/2026), lãi suất Fed 3.88%, lợi suất 10 năm 5.22%.",
-      "asOf": "2026-10-08",
+      "reason": "M2 YoY 5.66% (tháng 08/2026), lãi suất Fed 3.88%, lợi suất 10 năm 5.24%.",
+      "asOf": "2026-10-12",
       "confidence": "cao"
     },
     "debtGdpLevel": {
@@ -207,14 +207,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (43 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày 09/10/2026: qua đêm 4.52%, 1 tuần 4.94%, 3 tháng 6.75%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (43 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày 12/10/2026: qua đêm 4.75%, 1 tuần 4.76%, 3 tháng 7.6%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-10-13T03:45:24.418Z",
+    "fetchedAt": "2026-10-14T02:05:22.363Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -227,11 +227,11 @@
         "since": "2023-03-19"
       },
       "interbank": {
-        "date": "2026-10-09",
-        "overnight": 4.52,
-        "w1": 4.94,
-        "m1": 5.15,
-        "m3": 6.75
+        "date": "2026-10-12",
+        "overnight": 4.75,
+        "w1": 4.76,
+        "m1": 5.61,
+        "m3": 7.6
       }
     },
     "credit": {
