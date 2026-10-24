@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-23T01:46:45.353Z",
+  "generatedAt": "2026-10-24T01:51:20.339Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,12 +11,12 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-10-21",
-      "value": 5.13
+      "date": "2026-10-22",
+      "value": 4.96
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-10-21",
+      "date": "2026-10-22",
       "value": 3.88
     },
     "M2SL": {
@@ -82,9 +82,9 @@
   },
   "suggestions": {
     "bonds": {
-      "value": -1,
-      "reason": "Lợi suất 10 năm 4.67% → 5.13% (+46 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-10-21",
+      "value": 0,
+      "reason": "Lợi suất 10 năm 4.71% → 4.96% (+25 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-10-22",
       "confidence": "cao"
     },
     "stocks": {
@@ -113,24 +113,24 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~52 ngày).",
+      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~53 ngày).",
       "asOf": "2026-09-01",
       "confidence": "trung bình"
     },
     "fedCycle": {
       "value": "hiking",
       "reason": "Lãi suất Fed 3.64% → 3.88% trong 6 tháng (+0.24 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-10-21",
+      "asOf": "2026-10-22",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
         "m2yoy": 5.66,
         "fedRate": 3.88,
-        "treasury10y": 5.13
+        "treasury10y": 4.96
       },
-      "reason": "M2 YoY 5.66% (tháng 08/2026), lãi suất Fed 3.88%, lợi suất 10 năm 5.13%.",
-      "asOf": "2026-10-21",
+      "reason": "M2 YoY 5.66% (tháng 08/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.96%.",
+      "asOf": "2026-10-22",
       "confidence": "cao"
     },
     "debtGdpLevel": {
@@ -138,24 +138,6 @@
       "reason": "Nợ liên bang/GDP 122.6% so với trung bình 10 năm 114.0% (+7.6%; lệch dưới ±3% coi là ngang bằng). Chỉ áp dụng cho phạm vi Mỹ/Thế Giới.",
       "asOf": "2026-01-01",
       "confidence": "trung bình"
-    },
-    "bondTrendMonths": {
-      "value": 14,
-      "reason": "Lợi suất 10 năm đã tăng liên tục (so với 6 tháng trước) khoảng 14 tháng.",
-      "asOf": "2026-10",
-      "confidence": "trung bình"
-    },
-    "bondTrendMaturity": {
-      "value": "extended",
-      "reason": "14 tháng — dưới 9 tháng là \"Mới Đảo Chiều\", 9-59 tháng \"Đã Kéo Dài\", từ 60 tháng \"Đã Vượt Quá 1 Chu Kỳ\".",
-      "asOf": "2026-10",
-      "confidence": "trung bình"
-    },
-    "bondPriceLevel": {
-      "value": "near_low",
-      "reason": "Lợi suất hiện ở bách phân vị 100 của 5 năm qua — lợi suất gần đỉnh, tức giá Trái Phiếu gần vùng THẤP nhiều năm.",
-      "asOf": "2026-10",
-      "confidence": "cao"
     },
     "globalYieldSync": {
       "value": "yes",
@@ -207,14 +189,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (43 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 3.39%, 1 tuần 3.66%, 3 tháng 7.26%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (43 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.31%, 1 tuần 4.35%, 3 tháng 6.93%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-10-23T01:46:45.326Z",
+    "fetchedAt": "2026-10-24T01:51:20.314Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -228,10 +210,10 @@
       },
       "interbank": {
         "date": null,
-        "overnight": 3.39,
-        "w1": 3.66,
-        "m1": 5.38,
-        "m3": 7.26
+        "overnight": 4.31,
+        "w1": 4.35,
+        "m1": 5.11,
+        "m3": 6.93
       }
     },
     "credit": {
