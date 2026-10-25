@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-24T15:38:30.456Z",
+  "generatedAt": "2026-10-25T01:09:02.644Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -196,7 +196,7 @@
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-10-24T15:38:30.425Z",
+    "fetchedAt": "2026-10-25T01:09:02.462Z",
     "rates": {
       "refi": {
         "value": 4.5,
