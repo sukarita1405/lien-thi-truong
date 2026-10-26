@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T01:09:02.644Z",
+  "generatedAt": "2026-10-26T01:32:14.793Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -113,7 +113,7 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~54 ngày).",
+      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~55 ngày).",
       "asOf": "2026-09-01",
       "confidence": "trung bình"
     },
@@ -196,7 +196,7 @@
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-10-25T01:09:02.462Z",
+    "fetchedAt": "2026-10-26T01:32:14.763Z",
     "rates": {
       "refi": {
         "value": 4.5,
