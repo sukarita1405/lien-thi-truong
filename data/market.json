@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T01:32:14.793Z",
+  "generatedAt": "2026-10-27T02:20:21.546Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,12 +11,12 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-10-22",
-      "value": 4.96
+      "date": "2026-10-23",
+      "value": 5
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-10-22",
+      "date": "2026-10-23",
       "value": 3.88
     },
     "M2SL": {
@@ -26,13 +26,13 @@
     },
     "SP500": {
       "label": "S&P 500",
-      "date": "2026-10-21",
-      "value": 7757.17
+      "date": "2026-10-23",
+      "value": 7623.68
     },
     "DTWEXBGS": {
       "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
-      "date": "2026-10-16",
-      "value": 121.4048
+      "date": "2026-10-23",
+      "value": 121.3202
     },
     "DCOILBRENTEU": {
       "label": "Dầu Brent (USD/thùng)",
@@ -82,21 +82,21 @@
   },
   "suggestions": {
     "bonds": {
-      "value": 0,
-      "reason": "Lợi suất 10 năm 4.71% → 4.96% (+25 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-10-22",
+      "value": -1,
+      "reason": "Lợi suất 10 năm 4.69% → 5.00% (+31 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-10-23",
       "confidence": "cao"
     },
     "stocks": {
-      "value": 1,
-      "reason": "S&P 500 +3.4% trong 3 tháng (7499 → 7757; ngưỡng ±3%).",
-      "asOf": "2026-10-21",
+      "value": 0,
+      "reason": "S&P 500 +2.9% trong 3 tháng (7412 → 7624; ngưỡng ±3%).",
+      "asOf": "2026-10-23",
       "confidence": "cao"
     },
     "usd": {
       "value": 0,
-      "reason": "Chỉ số USD rộng +0.7% trong 3 tháng (ngưỡng ±1.5%).",
-      "asOf": "2026-10-16",
+      "reason": "Chỉ số USD rộng +0.5% trong 3 tháng (ngưỡng ±1.5%).",
+      "asOf": "2026-10-23",
       "confidence": "cao"
     },
     "oilTrend": {
@@ -113,24 +113,24 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~55 ngày).",
+      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~56 ngày).",
       "asOf": "2026-09-01",
       "confidence": "trung bình"
     },
     "fedCycle": {
       "value": "hiking",
       "reason": "Lãi suất Fed 3.64% → 3.88% trong 6 tháng (+0.24 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-10-22",
+      "asOf": "2026-10-23",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
         "m2yoy": 5.66,
         "fedRate": 3.88,
-        "treasury10y": 4.96
+        "treasury10y": 5
       },
-      "reason": "M2 YoY 5.66% (tháng 08/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.96%.",
-      "asOf": "2026-10-22",
+      "reason": "M2 YoY 5.66% (tháng 08/2026), lãi suất Fed 3.88%, lợi suất 10 năm 5%.",
+      "asOf": "2026-10-23",
       "confidence": "cao"
     },
     "debtGdpLevel": {
@@ -138,6 +138,24 @@
       "reason": "Nợ liên bang/GDP 122.6% so với trung bình 10 năm 114.0% (+7.6%; lệch dưới ±3% coi là ngang bằng). Chỉ áp dụng cho phạm vi Mỹ/Thế Giới.",
       "asOf": "2026-01-01",
       "confidence": "trung bình"
+    },
+    "bondTrendMonths": {
+      "value": 14,
+      "reason": "Lợi suất 10 năm đã tăng liên tục (so với 6 tháng trước) khoảng 14 tháng.",
+      "asOf": "2026-10",
+      "confidence": "trung bình"
+    },
+    "bondTrendMaturity": {
+      "value": "extended",
+      "reason": "14 tháng — dưới 9 tháng là \"Mới Đảo Chiều\", 9-59 tháng \"Đã Kéo Dài\", từ 60 tháng \"Đã Vượt Quá 1 Chu Kỳ\".",
+      "asOf": "2026-10",
+      "confidence": "trung bình"
+    },
+    "bondPriceLevel": {
+      "value": "near_low",
+      "reason": "Lợi suất hiện ở bách phân vị 100 của 5 năm qua — lợi suất gần đỉnh, tức giá Trái Phiếu gần vùng THẤP nhiều năm.",
+      "asOf": "2026-10",
+      "confidence": "cao"
     },
     "globalYieldSync": {
       "value": "yes",
@@ -168,13 +186,7 @@
     },
     "usdContext": {
       "value": "normal",
-      "reason": "USD Đi Ngang, Cổ Phiếu Tăng — không khớp đầu nào của Dollar Smile, giữ \"Bình Thường\".",
-      "asOf": null,
-      "confidence": "trung bình"
-    },
-    "commodityCause": {
-      "value": "demand",
-      "reason": "Hàng hóa tăng rộng cùng lúc với Cổ Phiếu — dấu hiệu cầu thực đang kéo giá.",
+      "reason": "USD Đi Ngang, Cổ Phiếu Đi Ngang — không khớp đầu nào của Dollar Smile, giữ \"Bình Thường\".",
       "asOf": null,
       "confidence": "trung bình"
     },
@@ -189,14 +201,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (43 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.31%, 1 tuần 4.35%, 3 tháng 6.93%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (43 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 3.95%, 1 tuần 4.08%, 3 tháng 6.9%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-10-26T01:32:14.763Z",
+    "fetchedAt": "2026-10-27T02:20:21.254Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -210,10 +222,10 @@
       },
       "interbank": {
         "date": null,
-        "overnight": 4.31,
-        "w1": 4.35,
-        "m1": 5.11,
-        "m3": 6.93
+        "overnight": 3.95,
+        "w1": 4.08,
+        "m1": 5.25,
+        "m3": 6.9
       }
     },
     "credit": {
