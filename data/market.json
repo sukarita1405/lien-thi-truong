@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T02:31:17.722Z",
+  "generatedAt": "2026-10-29T02:41:38.753Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,12 +11,12 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-10-26",
-      "value": 5
+      "date": "2026-10-27",
+      "value": 4.99
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-10-26",
+      "date": "2026-10-27",
       "value": 3.88
     },
     "M2SL": {
@@ -26,8 +26,8 @@
     },
     "SP500": {
       "label": "S&P 500",
-      "date": "2026-10-27",
-      "value": 7722.6
+      "date": "2026-10-28",
+      "value": 7743.98
     },
     "DTWEXBGS": {
       "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
@@ -36,8 +36,8 @@
     },
     "DCOILBRENTEU": {
       "label": "Dầu Brent (USD/thùng)",
-      "date": "2026-10-20",
-      "value": 115.22
+      "date": "2026-10-27",
+      "value": 123.1
     },
     "PALLFNFINDEXM": {
       "label": "Chỉ số giá toàn bộ hàng hóa IMF (tháng)",
@@ -51,13 +51,13 @@
     },
     "GFDEGDQ188S": {
       "label": "Nợ công liên bang Mỹ / GDP (%)",
-      "date": "2026-01-01",
-      "value": 122.59387
+      "date": "2026-04-01",
+      "value": 121.18773
     },
     "STLFSI4": {
       "label": "Chỉ số Căng thẳng Tài chính St. Louis",
-      "date": "2026-10-16",
-      "value": -0.6328
+      "date": "2026-10-23",
+      "value": -0.5837
     },
     "ECIWAG": {
       "label": "Chỉ số Chi Phí Tiền Lương ECI (tư nhân)",
@@ -83,14 +83,14 @@
   "suggestions": {
     "bonds": {
       "value": -1,
-      "reason": "Lợi suất 10 năm 4.65% → 5.00% (+35 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-10-26",
+      "reason": "Lợi suất 10 năm 4.61% → 4.99% (+38 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-10-27",
       "confidence": "cao"
     },
     "stocks": {
       "value": 1,
-      "reason": "S&P 500 +4.0% trong 3 tháng (7429 → 7723; ngưỡng ±3%).",
-      "asOf": "2026-10-27",
+      "reason": "S&P 500 +5.8% trong 3 tháng (7316 → 7744; ngưỡng ±3%).",
+      "asOf": "2026-10-28",
       "confidence": "cao"
     },
     "usd": {
@@ -101,42 +101,42 @@
     },
     "oilTrend": {
       "value": 1,
-      "reason": "Brent +22.8% trong 3 tháng (94 → 115 USD; ngưỡng ±5%).",
-      "asOf": "2026-10-20",
+      "reason": "Brent +44.0% trong 3 tháng (86 → 123 USD; ngưỡng ±5%).",
+      "asOf": "2026-10-27",
       "confidence": "cao"
     },
     "oilMaturity": {
       "value": "fresh",
       "reason": "Xu hướng tăng của Dầu đã kéo dài khoảng 2 tháng (từ 9 tháng trở lên coi là \"Đã Kéo Dài\").",
-      "asOf": "2026-10-20",
+      "asOf": "2026-10-27",
       "confidence": "trung bình"
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~57 ngày).",
+      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~58 ngày).",
       "asOf": "2026-09-01",
       "confidence": "trung bình"
     },
     "fedCycle": {
       "value": "hiking",
       "reason": "Lãi suất Fed 3.64% → 3.88% trong 6 tháng (+0.24 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-10-26",
+      "asOf": "2026-10-27",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
         "m2yoy": 5.71,
         "fedRate": 3.88,
-        "treasury10y": 5
+        "treasury10y": 4.99
       },
-      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 5%.",
-      "asOf": "2026-10-26",
+      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.99%.",
+      "asOf": "2026-10-27",
       "confidence": "cao"
     },
     "debtGdpLevel": {
       "value": "above",
-      "reason": "Nợ liên bang/GDP 122.6% so với trung bình 10 năm 114.0% (+7.6%; lệch dưới ±3% coi là ngang bằng). Chỉ áp dụng cho phạm vi Mỹ/Thế Giới.",
-      "asOf": "2026-01-01",
+      "reason": "Nợ liên bang/GDP 121.2% so với trung bình 10 năm 114.3% (+6.0%; lệch dưới ±3% coi là ngang bằng). Chỉ áp dụng cho phạm vi Mỹ/Thế Giới.",
+      "asOf": "2026-04-01",
       "confidence": "trung bình"
     },
     "bondTrendMonths": {
@@ -171,8 +171,8 @@
     },
     "usdFundingStress": {
       "value": "no",
-      "reason": "Chỉ số Căng thẳng Tài chính St. Louis = -0.63 (trên 1 là căng thẳng rõ, dưới 0 là thấp hơn bình thường). Đây là chỉ báo đại diện, không đo trực tiếp thanh khoản USD.",
-      "asOf": "2026-10-16",
+      "reason": "Chỉ số Căng thẳng Tài chính St. Louis = -0.58 (trên 1 là căng thẳng rõ, dưới 0 là thấp hơn bình thường). Đây là chỉ báo đại diện, không đo trực tiếp thanh khoản USD.",
+      "asOf": "2026-10-23",
       "confidence": "trung bình"
     },
     "eci": {
@@ -191,9 +191,9 @@
       "confidence": "trung bình"
     },
     "commodityCause": {
-      "value": "demand",
-      "reason": "Hàng hóa tăng rộng cùng lúc với Cổ Phiếu — dấu hiệu cầu thực đang kéo giá.",
-      "asOf": null,
+      "value": "cost_push",
+      "reason": "Dầu tăng +44.0% vượt xa phần hàng hóa còn lại (+14.3%) — áp lực đến từ năng lượng/nguồn cung, không phải cầu chung.",
+      "asOf": "2026-10-27",
       "confidence": "trung bình"
     },
     "vnCreditInputs": {
@@ -207,14 +207,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (43 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.27%, 1 tuần 5%, 3 tháng 7.12%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.9%, 1 tuần 5.57%, 3 tháng 7.43%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-10-28T02:31:17.700Z",
+    "fetchedAt": "2026-10-29T02:41:38.731Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -228,10 +228,10 @@
       },
       "interbank": {
         "date": null,
-        "overnight": 4.27,
-        "w1": 5,
-        "m1": 4.83,
-        "m3": 7.12
+        "overnight": 4.9,
+        "w1": 5.57,
+        "m1": 5.57,
+        "m3": 7.43
       }
     },
     "credit": {
