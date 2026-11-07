@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T03:34:59.594Z",
+  "generatedAt": "2026-11-07T03:03:43.541Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,12 +11,12 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-11-04",
-      "value": 4.9
+      "date": "2026-11-05",
+      "value": 4.84
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-11-04",
+      "date": "2026-11-05",
       "value": 3.88
     },
     "M2SL": {
@@ -26,8 +26,8 @@
     },
     "SP500": {
       "label": "S&P 500",
-      "date": "2026-11-04",
-      "value": 7688.62
+      "date": "2026-11-05",
+      "value": 7353.73
     },
     "DTWEXBGS": {
       "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
@@ -82,15 +82,15 @@
   },
   "suggestions": {
     "bonds": {
-      "value": -1,
-      "reason": "Lợi suất 10 năm 4.63% → 4.90% (+27 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-11-04",
+      "value": 0,
+      "reason": "Lợi suất 10 năm 4.69% → 4.84% (+15 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-11-05",
       "confidence": "cao"
     },
     "stocks": {
-      "value": 0,
-      "reason": "S&P 500 -0.5% trong 3 tháng (7724 → 7689; ngưỡng ±3%).",
-      "asOf": "2026-11-04",
+      "value": -1,
+      "reason": "S&P 500 -4.6% trong 3 tháng (7710 → 7354; ngưỡng ±3%).",
+      "asOf": "2026-11-05",
       "confidence": "cao"
     },
     "usd": {
@@ -113,24 +113,24 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~66 ngày).",
+      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~67 ngày).",
       "asOf": "2026-09-01",
       "confidence": "thấp"
     },
     "fedCycle": {
       "value": "hiking",
       "reason": "Lãi suất Fed 3.64% → 3.88% trong 6 tháng (+0.24 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-11-04",
+      "asOf": "2026-11-05",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
         "m2yoy": 5.71,
         "fedRate": 3.88,
-        "treasury10y": 4.9
+        "treasury10y": 4.84
       },
-      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.9%.",
-      "asOf": "2026-11-04",
+      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.84%.",
+      "asOf": "2026-11-05",
       "confidence": "cao"
     },
     "debtGdpLevel": {
@@ -138,24 +138,6 @@
       "reason": "Nợ liên bang/GDP 121.2% so với trung bình 10 năm 114.3% (+6.0%; lệch dưới ±3% coi là ngang bằng). Chỉ áp dụng cho phạm vi Mỹ/Thế Giới.",
       "asOf": "2026-04-01",
       "confidence": "trung bình"
-    },
-    "bondTrendMonths": {
-      "value": 15,
-      "reason": "Lợi suất 10 năm đã tăng liên tục (so với 6 tháng trước) khoảng 15 tháng.",
-      "asOf": "2026-11",
-      "confidence": "trung bình"
-    },
-    "bondTrendMaturity": {
-      "value": "extended",
-      "reason": "15 tháng — dưới 9 tháng là \"Mới Đảo Chiều\", 9-59 tháng \"Đã Kéo Dài\", từ 60 tháng \"Đã Vượt Quá 1 Chu Kỳ\".",
-      "asOf": "2026-11",
-      "confidence": "trung bình"
-    },
-    "bondPriceLevel": {
-      "value": "near_low",
-      "reason": "Lợi suất hiện ở bách phân vị 97 của 5 năm qua — lợi suất gần đỉnh, tức giá Trái Phiếu gần vùng THẤP nhiều năm.",
-      "asOf": "2026-11",
-      "confidence": "cao"
     },
     "globalYieldSync": {
       "value": "yes",
@@ -185,8 +167,14 @@
       "confidence": "cao"
     },
     "usdContext": {
-      "value": "normal",
-      "reason": "USD Tăng, Cổ Phiếu Đi Ngang — không khớp đầu nào của Dollar Smile, giữ \"Bình Thường\".",
+      "value": "crisis",
+      "reason": "USD Tăng trong khi Cổ Phiếu Giảm — dòng tiền trú ẩn, đúng đầu \"Khủng Hoảng\" của Dollar Smile.",
+      "asOf": null,
+      "confidence": "trung bình"
+    },
+    "capitalFlowType": {
+      "value": "safe_haven",
+      "reason": "Suy ra từ Dollar Smile \"Khủng Hoảng Toàn Cầu\".",
       "asOf": null,
       "confidence": "trung bình"
     },
@@ -201,14 +189,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 5.02%, 1 tuần 5.79%, 3 tháng 6.84%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.51%, 1 tuần 5%, 3 tháng 6.6%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-06T03:34:59.330Z",
+    "fetchedAt": "2026-11-07T03:03:43.517Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -222,10 +210,10 @@
       },
       "interbank": {
         "date": null,
-        "overnight": 5.02,
-        "w1": 5.79,
-        "m1": 4.46,
-        "m3": 6.84
+        "overnight": 4.51,
+        "w1": 5,
+        "m1": 5.27,
+        "m3": 6.6
       }
     },
     "credit": {
