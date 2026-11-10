@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-09T02:54:30.234Z",
+  "generatedAt": "2026-11-10T04:44:10.494Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,12 +11,12 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-11-05",
-      "value": 4.84
+      "date": "2026-11-06",
+      "value": 4.86
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-11-05",
+      "date": "2026-11-06",
       "value": 3.88
     },
     "M2SL": {
@@ -31,8 +31,8 @@
     },
     "DTWEXBGS": {
       "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
-      "date": "2026-10-30",
-      "value": 121.6656
+      "date": "2026-11-06",
+      "value": 121.8803
     },
     "DCOILBRENTEU": {
       "label": "Dầu Brent (USD/thùng)",
@@ -83,8 +83,8 @@
   "suggestions": {
     "bonds": {
       "value": 0,
-      "reason": "Lợi suất 10 năm 4.69% → 4.84% (+15 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-11-05",
+      "reason": "Lợi suất 10 năm 4.65% → 4.86% (+21 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-11-06",
       "confidence": "cao"
     },
     "stocks": {
@@ -95,8 +95,8 @@
     },
     "usd": {
       "value": 1,
-      "reason": "Chỉ số USD rộng +1.6% trong 3 tháng (ngưỡng ±1.5%).",
-      "asOf": "2026-10-30",
+      "reason": "Chỉ số USD rộng +2.4% trong 3 tháng (ngưỡng ±1.5%).",
+      "asOf": "2026-11-06",
       "confidence": "cao"
     },
     "oilTrend": {
@@ -113,24 +113,24 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~69 ngày).",
+      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~70 ngày).",
       "asOf": "2026-09-01",
       "confidence": "thấp"
     },
     "fedCycle": {
       "value": "hiking",
-      "reason": "Lãi suất Fed 3.64% → 3.88% trong 6 tháng (+0.24 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-11-05",
+      "reason": "Lãi suất Fed 3.63% → 3.88% trong 6 tháng (+0.25 điểm %; ngưỡng ±0,2).",
+      "asOf": "2026-11-06",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
         "m2yoy": 5.71,
         "fedRate": 3.88,
-        "treasury10y": 4.84
+        "treasury10y": 4.86
       },
-      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.84%.",
-      "asOf": "2026-11-05",
+      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.86%.",
+      "asOf": "2026-11-06",
       "confidence": "cao"
     },
     "debtGdpLevel": {
@@ -189,14 +189,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.51%, 1 tuần 5%, 3 tháng 6.6%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 6.07%, 1 tuần 5.7%, 3 tháng 7%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-09T02:54:30.200Z",
+    "fetchedAt": "2026-11-10T04:44:10.261Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -210,10 +210,10 @@
       },
       "interbank": {
         "date": null,
-        "overnight": 4.51,
-        "w1": 5,
-        "m1": 5.27,
-        "m3": 6.6
+        "overnight": 6.07,
+        "w1": 5.7,
+        "m1": 4.97,
+        "m3": 7
       }
     },
     "credit": {
