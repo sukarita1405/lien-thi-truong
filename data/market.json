@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T04:44:10.494Z",
+  "generatedAt": "2026-11-11T02:55:53.815Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,12 +11,12 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-11-06",
-      "value": 4.86
+      "date": "2026-11-09",
+      "value": 4.88
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-11-06",
+      "date": "2026-11-09",
       "value": 3.88
     },
     "M2SL": {
@@ -26,8 +26,8 @@
     },
     "SP500": {
       "label": "S&P 500",
-      "date": "2026-11-05",
-      "value": 7353.73
+      "date": "2026-11-10",
+      "value": 7520.93
     },
     "DTWEXBGS": {
       "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
@@ -83,14 +83,14 @@
   "suggestions": {
     "bonds": {
       "value": 0,
-      "reason": "Lợi suất 10 năm 4.65% → 4.86% (+21 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-11-06",
+      "reason": "Lợi suất 10 năm 4.72% → 4.88% (+16 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-11-09",
       "confidence": "cao"
     },
     "stocks": {
-      "value": -1,
-      "reason": "S&P 500 -4.6% trong 3 tháng (7710 → 7354; ngưỡng ±3%).",
-      "asOf": "2026-11-05",
+      "value": 0,
+      "reason": "S&P 500 -2.7% trong 3 tháng (7728 → 7521; ngưỡng ±3%).",
+      "asOf": "2026-11-10",
       "confidence": "cao"
     },
     "usd": {
@@ -113,24 +113,24 @@
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~70 ngày).",
+      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~71 ngày).",
       "asOf": "2026-09-01",
       "confidence": "thấp"
     },
     "fedCycle": {
       "value": "hiking",
       "reason": "Lãi suất Fed 3.63% → 3.88% trong 6 tháng (+0.25 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-11-06",
+      "asOf": "2026-11-09",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
         "m2yoy": 5.71,
         "fedRate": 3.88,
-        "treasury10y": 4.86
+        "treasury10y": 4.88
       },
-      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.86%.",
-      "asOf": "2026-11-06",
+      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.88%.",
+      "asOf": "2026-11-09",
       "confidence": "cao"
     },
     "debtGdpLevel": {
@@ -167,14 +167,8 @@
       "confidence": "cao"
     },
     "usdContext": {
-      "value": "crisis",
-      "reason": "USD Tăng trong khi Cổ Phiếu Giảm — dòng tiền trú ẩn, đúng đầu \"Khủng Hoảng\" của Dollar Smile.",
-      "asOf": null,
-      "confidence": "trung bình"
-    },
-    "capitalFlowType": {
-      "value": "safe_haven",
-      "reason": "Suy ra từ Dollar Smile \"Khủng Hoảng Toàn Cầu\".",
+      "value": "normal",
+      "reason": "USD Tăng, Cổ Phiếu Đi Ngang — không khớp đầu nào của Dollar Smile, giữ \"Bình Thường\".",
       "asOf": null,
       "confidence": "trung bình"
     },
@@ -189,14 +183,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 6.07%, 1 tuần 5.7%, 3 tháng 7%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.65%, 1 tuần 4.93%, 3 tháng 6.39%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-10T04:44:10.261Z",
+    "fetchedAt": "2026-11-11T02:55:53.793Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -210,10 +204,10 @@
       },
       "interbank": {
         "date": null,
-        "overnight": 6.07,
-        "w1": 5.7,
-        "m1": 4.97,
-        "m3": 7
+        "overnight": 4.65,
+        "w1": 4.93,
+        "m1": 5.07,
+        "m3": 6.39
       }
     },
     "credit": {
