@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T04:02:06.828Z",
+  "generatedAt": "2026-11-13T03:31:50.588Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,12 +11,12 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-11-09",
-      "value": 4.88
+      "date": "2026-11-10",
+      "value": 4.98
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-11-09",
+      "date": "2026-11-11",
       "value": 3.88
     },
     "M2SL": {
@@ -26,8 +26,8 @@
     },
     "SP500": {
       "label": "S&P 500",
-      "date": "2026-11-10",
-      "value": 7520.93
+      "date": "2026-11-11",
+      "value": 7619.38
     },
     "DTWEXBGS": {
       "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
@@ -36,8 +36,8 @@
     },
     "DCOILBRENTEU": {
       "label": "Dầu Brent (USD/thùng)",
-      "date": "2026-11-03",
-      "value": 107.03
+      "date": "2026-11-11",
+      "value": 92.14
     },
     "PALLFNFINDEXM": {
       "label": "Chỉ số giá toàn bộ hàng hóa IMF (tháng)",
@@ -46,8 +46,8 @@
     },
     "WALCL": {
       "label": "Tổng tài sản Fed (triệu USD)",
-      "date": "2026-11-04",
-      "value": 6748145
+      "date": "2026-11-11",
+      "value": 6758867
     },
     "GFDEGDQ188S": {
       "label": "Nợ công liên bang Mỹ / GDP (%)",
@@ -56,8 +56,8 @@
     },
     "STLFSI4": {
       "label": "Chỉ số Căng thẳng Tài chính St. Louis",
-      "date": "2026-10-30",
-      "value": -0.5224
+      "date": "2026-11-06",
+      "value": -0.4918
     },
     "ECIWAG": {
       "label": "Chỉ số Chi Phí Tiền Lương ECI (tư nhân)",
@@ -82,15 +82,15 @@
   },
   "suggestions": {
     "bonds": {
-      "value": 0,
-      "reason": "Lợi suất 10 năm 4.72% → 4.88% (+16 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-11-09",
+      "value": -1,
+      "reason": "Lợi suất 10 năm 4.70% → 4.98% (+28 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
+      "asOf": "2026-11-10",
       "confidence": "cao"
     },
     "stocks": {
       "value": 0,
-      "reason": "S&P 500 -2.7% trong 3 tháng (7728 → 7521; ngưỡng ±3%).",
-      "asOf": "2026-11-10",
+      "reason": "S&P 500 -1.7% trong 3 tháng (7749 → 7619; ngưỡng ±3%).",
+      "asOf": "2026-11-11",
       "confidence": "cao"
     },
     "usd": {
@@ -100,37 +100,31 @@
       "confidence": "cao"
     },
     "oilTrend": {
-      "value": 1,
-      "reason": "Brent +23.8% trong 3 tháng (86 → 107 USD; ngưỡng ±5%).",
-      "asOf": "2026-11-03",
+      "value": 0,
+      "reason": "Brent -0.4% trong 3 tháng (93 → 92 USD; ngưỡng ±5%).",
+      "asOf": "2026-11-11",
       "confidence": "cao"
-    },
-    "oilMaturity": {
-      "value": "fresh",
-      "reason": "Xu hướng tăng của Dầu đã kéo dài khoảng 3 tháng (từ 9 tháng trở lên coi là \"Đã Kéo Dài\").",
-      "asOf": "2026-11-03",
-      "confidence": "trung bình"
     },
     "commodities": {
       "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~72 ngày).",
+      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~73 ngày).",
       "asOf": "2026-09-01",
       "confidence": "thấp"
     },
     "fedCycle": {
       "value": "hiking",
       "reason": "Lãi suất Fed 3.63% → 3.88% trong 6 tháng (+0.25 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-11-09",
+      "asOf": "2026-11-11",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
         "m2yoy": 5.71,
         "fedRate": 3.88,
-        "treasury10y": 4.88
+        "treasury10y": 4.98
       },
-      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.88%.",
-      "asOf": "2026-11-09",
+      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.98%.",
+      "asOf": "2026-11-11",
       "confidence": "cao"
     },
     "debtGdpLevel": {
@@ -138,6 +132,24 @@
       "reason": "Nợ liên bang/GDP 121.2% so với trung bình 10 năm 114.3% (+6.0%; lệch dưới ±3% coi là ngang bằng). Chỉ áp dụng cho phạm vi Mỹ/Thế Giới.",
       "asOf": "2026-04-01",
       "confidence": "trung bình"
+    },
+    "bondTrendMonths": {
+      "value": 15,
+      "reason": "Lợi suất 10 năm đã tăng liên tục (so với 6 tháng trước) khoảng 15 tháng.",
+      "asOf": "2026-11",
+      "confidence": "trung bình"
+    },
+    "bondTrendMaturity": {
+      "value": "extended",
+      "reason": "15 tháng — dưới 9 tháng là \"Mới Đảo Chiều\", 9-59 tháng \"Đã Kéo Dài\", từ 60 tháng \"Đã Vượt Quá 1 Chu Kỳ\".",
+      "asOf": "2026-11",
+      "confidence": "trung bình"
+    },
+    "bondPriceLevel": {
+      "value": "near_low",
+      "reason": "Lợi suất hiện ở bách phân vị 97 của 5 năm qua — lợi suất gần đỉnh, tức giá Trái Phiếu gần vùng THẤP nhiều năm.",
+      "asOf": "2026-11",
+      "confidence": "cao"
     },
     "globalYieldSync": {
       "value": "yes",
@@ -147,14 +159,14 @@
     },
     "activeQE": {
       "value": "no",
-      "reason": "Tổng tài sản Fed +2.4% trong 12 tháng (trên +5% coi là đang bơm QE).",
-      "asOf": "2026-11-04",
+      "reason": "Tổng tài sản Fed +2.8% trong 12 tháng (trên +5% coi là đang bơm QE).",
+      "asOf": "2026-11-11",
       "confidence": "cao"
     },
     "usdFundingStress": {
       "value": "no",
-      "reason": "Chỉ số Căng thẳng Tài chính St. Louis = -0.52 (trên 1 là căng thẳng rõ, dưới 0 là thấp hơn bình thường). Đây là chỉ báo đại diện, không đo trực tiếp thanh khoản USD.",
-      "asOf": "2026-10-30",
+      "reason": "Chỉ số Căng thẳng Tài chính St. Louis = -0.49 (trên 1 là căng thẳng rõ, dưới 0 là thấp hơn bình thường). Đây là chỉ báo đại diện, không đo trực tiếp thanh khoản USD.",
+      "asOf": "2026-11-06",
       "confidence": "trung bình"
     },
     "eci": {
@@ -183,14 +195,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.4%, 1 tuần 4.74%, 3 tháng 6.41%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.33%, 1 tuần 4.66%, 3 tháng 6.33%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-12T04:02:06.615Z",
+    "fetchedAt": "2026-11-13T03:31:50.553Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -204,10 +216,10 @@
       },
       "interbank": {
         "date": null,
-        "overnight": 4.4,
-        "w1": 4.74,
-        "m1": 5.66,
-        "m3": 6.41
+        "overnight": 4.33,
+        "w1": 4.66,
+        "m1": 5.59,
+        "m3": 6.33
       }
     },
     "credit": {

@@ -550,5 +550,17 @@
   "ibM3": 6.41,
   "creditMonth": "2026-08",
   "creditYoy": 17.38
+ },
+ {
+  "date": "2026-11-13",
+  "refi": 4.5,
+  "refiSince": "2023-03-19",
+  "rediscount": 3,
+  "ibDate": null,
+  "ibOvernight": 4.33,
+  "ibW1": 4.66,
+  "ibM3": 6.33,
+  "creditMonth": "2026-08",
+  "creditYoy": 17.38
  }
 ]
