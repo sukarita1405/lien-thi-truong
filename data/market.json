@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T03:28:27.583Z",
+  "generatedAt": "2026-11-15T01:22:51.368Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -83,21 +83,24 @@
   "suggestions": {
     "bonds": {
       "value": -1,
-      "reason": "Lợi suất 10 năm 4.63% → 5.10% (+47 điểm cơ bản trong 3 tháng; ngưỡng ±25) — giá trái phiếu đi ngược lợi suất.",
-      "asOf": "2026-11-12",
-      "confidence": "cao"
+      "reason": "Lợi suất US10Y trên Bản Đồ Tài Sản +13.2 bp/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±8.3 bp/tháng — lợi suất tăng thì giá trái phiếu giảm. (Đối chiếu FRED: Lợi suất 10 năm 4.63% → 5.10% (+47 điểm cơ bản trong 3 tháng; ngưỡng ±25).)",
+      "asOf": "2026-11-15",
+      "confidence": "cao",
+      "source": "dautu"
     },
     "stocks": {
       "value": 0,
-      "reason": "S&P 500 -2.9% trong 3 tháng (7786 → 7562; ngưỡng ±3%).",
-      "asOf": "2026-11-13",
-      "confidence": "cao"
+      "reason": "S&P 500 trên Bản Đồ Tài Sản -0.54%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: S&P 500 -2.9% trong 3 tháng (7786 → 7562; ngưỡng ±3%).)",
+      "asOf": "2026-11-15",
+      "confidence": "cao",
+      "source": "dautu"
     },
     "usd": {
       "value": 1,
-      "reason": "Chỉ số USD rộng +2.4% trong 3 tháng (ngưỡng ±1.5%).",
-      "asOf": "2026-11-06",
-      "confidence": "cao"
+      "reason": "DXY trên Bản Đồ Tài Sản +1.32%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±0.5%/tháng. (Đối chiếu FRED: Chỉ số USD rộng +2.4% trong 3 tháng (ngưỡng ±1.5%).)",
+      "asOf": "2026-11-15",
+      "confidence": "cao",
+      "source": "dautu"
     },
     "oilTrend": {
       "value": 0,
@@ -106,10 +109,11 @@
       "confidence": "cao"
     },
     "commodities": {
-      "value": 1,
-      "reason": "Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~74 ngày).",
-      "asOf": "2026-09-01",
-      "confidence": "thấp"
+      "value": 0,
+      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -0.38%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~75 ngày).)",
+      "asOf": "2026-11-15",
+      "confidence": "cao",
+      "source": "dautu"
     },
     "fedCycle": {
       "value": "hiking",
@@ -202,7 +206,7 @@
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-14T03:28:27.245Z",
+    "fetchedAt": "2026-11-15T01:22:51.342Z",
     "rates": {
       "refi": {
         "value": 4.5,

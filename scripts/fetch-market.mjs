@@ -188,6 +188,44 @@ async function fetchSbvCredit(){
   return { month: last.month, date: last.date, total: last.total, ytd: last.ytd, yoy: +((last.total / yearAgo.total - 1) * 100).toFixed(2) };
 }
 
+// =====================================================================================
+// BẢN ĐỒ TÀI SẢN FIN4P — route công khai trên dautu.fin4p.com (chỉ % thay đổi của chỉ số thị trường, không có
+// Khuyến nghị/danh mục). Trả về giá trị cột "3 tháng" của 4 mã chập Liên Thị Trường.
+// =====================================================================================
+const DAUTU_URL = 'https://dautu.fin4p.com/api/lien-thi-truong';
+async function fetchDautuAssets(){
+  let lastErr;
+  for(let i = 1; i <= 3; i++){
+    try{
+      const res = await fetch(DAUTU_URL, { headers: { 'User-Agent': 'lien-thi-truong-data-bot', Accept: 'application/json' }, redirect: 'manual' });
+      if(res.status >= 300 && res.status < 400) throw new Error('route chưa mở công khai (bị chuyển tới trang đăng nhập)');
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const j = await res.json();
+      if(!j.ok) throw new Error(j.error || 'route trả ok=false');
+      const cols = j.columns || [];
+      // Tên cột đổi theo tuần trên Sheet — chỉ dựa vào chữ "3 tháng" (hiện là "TB 3 tháng")
+      const col3m = cols.find(c => /(^|\s)3\s*tháng/i.test(c));
+      if(!col3m) throw new Error(`không thấy cột 3 tháng trong [${cols.join(', ')}]`);
+      const pick = k => {
+        const a = (j.assets || {})[k];
+        const v = a && a.changes ? a.changes[col3m] : null;
+        return typeof v === 'number' && isFinite(v) ? v : null;
+      };
+      return {
+        col3m: col3m.trim(),
+        asOf: (j.generatedAt || new Date().toISOString()).slice(0, 10),
+        updated: j.updated || null,
+        assets: { bonds: pick('bonds'), stocks: pick('stocks'), usd: pick('usd'), commodities: pick('commodities') },
+      };
+    }catch(e){
+      lastErr = e;
+      if(/chưa mở công khai|không thấy cột/.test(e.message)) break; // lỗi cấu hình, thử lại vô ích
+      await new Promise(r => setTimeout(r, 2000 * i));
+    }
+  }
+  throw lastErr;
+}
+
 async function main(){
   const data = {};
   const errors = [];
@@ -248,6 +286,41 @@ async function main(){
         (conflict ? ` ⚠ Ngược chiều với Dầu Brent (${fmt(oil.pct, 1)}%) — nên tự kiểm tra lại.` : ''),
         comm.now.date, conflict || stale ? 'thấp' : 'trung bình');
     }
+  }
+
+  // ---- ƯU TIÊN: Bản Đồ Tài Sản của Fin4P (dautu.fin4p.com), cột 3 tháng ----
+  // Cùng nguồn số với Sheet "Bản Đồ Tài Sản" mà Thái dùng hằng ngày (US10Y, S&P 500, DXY, DBC) — để Liên Thị
+  // Trường đọc ĐÚNG con số trên bản đồ, không lệch vì khác chỉ số (FRED dùng USD rộng thay DXY, IMF thay DBC).
+  // Lỗi/không có route thì giữ nguyên đề xuất FRED ở trên làm dự phòng.
+  const fredFallback = { bonds: sug.bonds, stocks: sug.stocks, usd: sug.usd, commodities: sug.commodities };
+  try{
+    const ta = await fetchDautuAssets();
+    const col = ta.col3m;
+    const asOf = ta.asOf;
+    const note = key => fredFallback[key] ? ` (Đối chiếu FRED: ${fredFallback[key].reason.split(' — ')[0].replace(/\.$/, '')}.)` : '';
+    // Cột "TB 3 tháng" là TRUNG BÌNH MỖI THÁNG của 3 cột tháng gần nhất (đã kiểm: US10Y (53,5−36,4+22,5)/3 = 13,2),
+    // không phải tổng 3 tháng — nên ngưỡng "Đi Ngang" = ngưỡng 3 tháng chia 3, tính theo mỗi tháng.
+    const M = { yieldBp: +(TH.yieldBp / 3).toFixed(1), stocksPct: +(TH.stocksPct / 3).toFixed(2), usdPct: +(TH.usdPct / 3).toFixed(2), commPct: +(TH.commPct / 3).toFixed(2) };
+    const per = `/tháng (cột "${col}" = trung bình 3 tháng gần nhất)`;
+    const map = [
+      ['bonds', 'bonds', v => dir(-v, M.yieldBp), v => `Lợi suất US10Y trên Bản Đồ Tài Sản ${fmt(v, 1)} bp${per}; ngưỡng ±${M.yieldBp} bp/tháng — lợi suất ${v > 0 ? 'tăng' : 'giảm'} thì giá trái phiếu ${v > 0 ? 'giảm' : 'tăng'}.`],
+      ['stocks', 'stocks', v => dir(v, M.stocksPct), v => `S&P 500 trên Bản Đồ Tài Sản ${fmt(v, 2)}%${per}; ngưỡng ±${M.stocksPct}%/tháng.`],
+      ['usd', 'usd', v => dir(v, M.usdPct), v => `DXY trên Bản Đồ Tài Sản ${fmt(v, 2)}%${per}; ngưỡng ±${M.usdPct}%/tháng.`],
+      ['commodities', 'commodities', v => dir(v, M.commPct), v => `Rổ hàng hoá DBC trên Bản Đồ Tài Sản ${fmt(v, 2)}%${per}; ngưỡng ±${M.commPct}%/tháng.`],
+    ];
+    for(const [key, assetKey, toDir, why] of map){
+      const v = ta.assets[assetKey];
+      if(v == null) continue;
+      const d = toDir(v);
+      put(key, d, why(v) + note(key), asOf, 'cao');
+      sug[key].source = 'dautu';
+      if(key === 'bonds') bondsDir = d;
+      if(key === 'stocks') stocksDir = d;
+      if(key === 'usd') usdDir = d;
+      if(key === 'commodities'){ commDir = d; comm = { pct: v, now: { date: asOf } }; }
+    }
+  }catch(e){
+    errors.push(`Bản Đồ Tài Sản (dautu.fin4p.com): ${e.message} — dùng FRED thay thế cho 4 tài sản`);
   }
 
   // ---- Fed & tín dụng ----

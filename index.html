@@ -6553,7 +6553,7 @@ function renderOverview(){
   if(typeof marketData !== 'undefined' && marketData && marketData.suggestions){
     const keys = SUGGESTION_ORDER.filter(k=>getSuggestion(k));
     const pending = keys.filter(k=>!suggestionMatches(k));
-    syncHtml = `<div class="ov-sync">📡 <b>${keys.length - pending.length}/${keys.length}</b> ô khớp số liệu FRED ngày ${viDate(marketData.generatedAt)}${pending.length
+    syncHtml = `<div class="ov-sync">📡 <b>${keys.length - pending.length}/${keys.length}</b> ô khớp số liệu thị trường ngày ${viDate(marketData.generatedAt)}${pending.length
       ? ` — còn khác: ${pending.map(k=>SUGGESTION_DEFS[k].label).join(', ')}. <button type="button" class="sug-apply" data-sug="${pending.join(',')}">Áp dụng tất cả</button>`
       : ' — toàn bộ đầu vào đang theo dữ liệu.'}</div>`;
   }
@@ -6632,6 +6632,17 @@ const SUGGESTION_DEFS = {
 // Thứ tự khi "Áp dụng tất cả": tài sản trước, bối cảnh sau (Dollar Smile có thể khóa USD)
 const SUGGESTION_ORDER = Object.keys(SUGGESTION_DEFS);
 const TAB_OF_SUGGESTION_BOX = { assets:'assets', usdfed:'usdfed', cycle:'cycle', macro:'macro' };
+
+// Nguồn số liệu thực có trong file — Bản Đồ Tài Sản Fin4P (4 tài sản), FRED (Mỹ), SBV (Việt Nam)
+function marketSourcesLabel(){
+  if(!marketData || !marketData.suggestions) return 'số liệu thị trường';
+  const s = marketData.suggestions;
+  const parts = [];
+  if(['bonds','stocks','usd','commodities'].some(k=>s[k] && s[k].source === 'dautu')) parts.push('Bản Đồ Tài Sản Fin4P');
+  parts.push('FRED');
+  if(marketData.vn && marketData.vn.ok) parts.push('SBV');
+  return parts.join(' · ');
+}
 
 function getSuggestion(key){
   return marketData && marketData.suggestions ? marketData.suggestions[key] || null : null;
@@ -6827,7 +6838,7 @@ function renderSuggestions(){
   const matched = keys.filter(suggestionMatches).length;
   bar.innerHTML = `
     <span class="mb-icon">📡</span>
-    <span class="mb-text">Đề xuất từ số liệu <b>FRED</b> cập nhật <b>${viDateTime(marketData.generatedAt)}</b> — <b>${matched}/${keys.length}</b> ô đang khớp đề xuất.</span>
+    <span class="mb-text">Đề xuất từ <b>${marketSourcesLabel()}</b> cập nhật <b>${viDateTime(marketData.generatedAt)}</b> — <b>${matched}/${keys.length}</b> ô đang khớp đề xuất.</span>
     ${matched < keys.length ? '<button type="button" class="mb-apply" id="applyAllSug">Áp dụng tất cả đề xuất</button>' : '<span class="sug-ok">✓ Đã khớp toàn bộ</span>'}
     <button type="button" class="mb-refresh" id="refreshDataBtn" ${refreshState.busy ? 'disabled' : ''}>${refreshState.busy ? '⏳ Đang làm mới…' : '🔄 Làm mới số liệu'}</button>
     ${refreshState.msg ? `<div class="mb-status mb-${refreshState.kind}">${refreshState.msg}</div>` : ''}
