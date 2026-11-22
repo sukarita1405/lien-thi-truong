@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-21T04:11:58.130Z",
+  "generatedAt": "2026-11-22T03:22:46.474Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -110,7 +110,7 @@
     },
     "commodities": {
       "value": 0,
-      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -0.38%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~81 ngày).)",
+      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -0.38%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~82 ngày).)",
       "asOf": "2026-11-15",
       "confidence": "cao",
       "source": "dautu"
@@ -206,7 +206,7 @@
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-21T04:11:58.114Z",
+    "fetchedAt": "2026-11-22T03:22:46.450Z",
     "rates": {
       "refi": {
         "value": 4.5,
