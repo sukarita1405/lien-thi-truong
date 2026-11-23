@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-22T03:22:46.474Z",
+  "generatedAt": "2026-11-23T03:54:41.735Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -82,23 +82,23 @@
   },
   "suggestions": {
     "bonds": {
-      "value": -1,
-      "reason": "Lợi suất US10Y trên Bản Đồ Tài Sản +13.2 bp/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±8.3 bp/tháng — lợi suất tăng thì giá trái phiếu giảm. (Đối chiếu FRED: Lợi suất 10 năm 4.69% → 5.04% (+35 điểm cơ bản trong 3 tháng; ngưỡng ±25).)",
-      "asOf": "2026-11-15",
+      "value": 0,
+      "reason": "Lợi suất US10Y trên Bản Đồ Tài Sản +5.1 bp/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±8.3 bp/tháng — lợi suất tăng thì giá trái phiếu giảm. (Đối chiếu FRED: Lợi suất 10 năm 4.69% → 5.04% (+35 điểm cơ bản trong 3 tháng; ngưỡng ±25).)",
+      "asOf": "2026-11-22",
       "confidence": "cao",
       "source": "dautu"
     },
     "stocks": {
-      "value": 0,
-      "reason": "S&P 500 trên Bản Đồ Tài Sản -0.54%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: S&P 500 -6.1% trong 3 tháng (7641 → 7176; ngưỡng ±3%).)",
-      "asOf": "2026-11-15",
+      "value": -1,
+      "reason": "S&P 500 trên Bản Đồ Tài Sản -3.40%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: S&P 500 -6.1% trong 3 tháng (7641 → 7176; ngưỡng ±3%).)",
+      "asOf": "2026-11-22",
       "confidence": "cao",
       "source": "dautu"
     },
     "usd": {
       "value": 1,
-      "reason": "DXY trên Bản Đồ Tài Sản +1.32%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±0.5%/tháng. (Đối chiếu FRED: Chỉ số USD rộng +3.2% trong 3 tháng (ngưỡng ±1.5%).)",
-      "asOf": "2026-11-15",
+      "reason": "DXY trên Bản Đồ Tài Sản +1.46%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±0.5%/tháng. (Đối chiếu FRED: Chỉ số USD rộng +3.2% trong 3 tháng (ngưỡng ±1.5%).)",
+      "asOf": "2026-11-22",
       "confidence": "cao",
       "source": "dautu"
     },
@@ -109,9 +109,9 @@
       "confidence": "cao"
     },
     "commodities": {
-      "value": 0,
-      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -0.38%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~82 ngày).)",
-      "asOf": "2026-11-15",
+      "value": -1,
+      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -1.84%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~83 ngày).)",
+      "asOf": "2026-11-22",
       "confidence": "cao",
       "source": "dautu"
     },
@@ -136,24 +136,6 @@
       "reason": "Nợ liên bang/GDP 121.2% so với trung bình 10 năm 114.3% (+6.0%; lệch dưới ±3% coi là ngang bằng). Chỉ áp dụng cho phạm vi Mỹ/Thế Giới.",
       "asOf": "2026-04-01",
       "confidence": "trung bình"
-    },
-    "bondTrendMonths": {
-      "value": 15,
-      "reason": "Lợi suất 10 năm đã tăng liên tục (so với 6 tháng trước) khoảng 15 tháng.",
-      "asOf": "2026-11",
-      "confidence": "trung bình"
-    },
-    "bondTrendMaturity": {
-      "value": "extended",
-      "reason": "15 tháng — dưới 9 tháng là \"Mới Đảo Chiều\", 9-59 tháng \"Đã Kéo Dài\", từ 60 tháng \"Đã Vượt Quá 1 Chu Kỳ\".",
-      "asOf": "2026-11",
-      "confidence": "trung bình"
-    },
-    "bondPriceLevel": {
-      "value": "near_low",
-      "reason": "Lợi suất hiện ở bách phân vị 98 của 5 năm qua — lợi suất gần đỉnh, tức giá Trái Phiếu gần vùng THẤP nhiều năm.",
-      "asOf": "2026-11",
-      "confidence": "cao"
     },
     "globalYieldSync": {
       "value": "no",
@@ -183,8 +165,14 @@
       "confidence": "cao"
     },
     "usdContext": {
-      "value": "normal",
-      "reason": "USD Tăng, Cổ Phiếu Đi Ngang — không khớp đầu nào của Dollar Smile, giữ \"Bình Thường\".",
+      "value": "crisis",
+      "reason": "USD Tăng trong khi Cổ Phiếu Giảm — dòng tiền trú ẩn, đúng đầu \"Khủng Hoảng\" của Dollar Smile.",
+      "asOf": null,
+      "confidence": "trung bình"
+    },
+    "capitalFlowType": {
+      "value": "safe_haven",
+      "reason": "Suy ra từ Dollar Smile \"Khủng Hoảng Toàn Cầu\".",
       "asOf": null,
       "confidence": "trung bình"
     },
@@ -206,7 +194,7 @@
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-22T03:22:46.450Z",
+    "fetchedAt": "2026-11-23T03:54:41.409Z",
     "rates": {
       "refi": {
         "value": 4.5,
