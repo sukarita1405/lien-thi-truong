@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T07:02:01.119Z",
+  "generatedAt": "2026-11-25T05:36:42.682Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -11,23 +11,23 @@
   "series": {
     "DGS10": {
       "label": "Lợi suất Trái Phiếu Kho Bạc Mỹ 10 năm (%)",
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "value": 4.92
     },
     "DFF": {
       "label": "Lãi suất Fed Funds hiệu dụng, ngày (%)",
-      "date": "2026-11-20",
+      "date": "2026-11-23",
       "value": 3.88
     },
     "M2SL": {
       "label": "Cung tiền M2 (tỷ USD)",
-      "date": "2026-09-01",
-      "value": 23413.9
+      "date": "2026-10-01",
+      "value": 23532.8
     },
     "SP500": {
       "label": "S&P 500",
-      "date": "2026-11-20",
-      "value": 6910.39
+      "date": "2026-11-23",
+      "value": 7237.17
     },
     "DTWEXBGS": {
       "label": "Chỉ số USD rộng (Nominal Broad Dollar Index)",
@@ -83,14 +83,14 @@
   "suggestions": {
     "bonds": {
       "value": 0,
-      "reason": "Lợi suất US10Y trên Bản Đồ Tài Sản +5.1 bp/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±8.3 bp/tháng — lợi suất tăng thì giá trái phiếu giảm. (Đối chiếu FRED: Lợi suất 10 năm 4.74% → 4.92% (+18 điểm cơ bản trong 3 tháng; ngưỡng ±25).)",
+      "reason": "Lợi suất US10Y trên Bản Đồ Tài Sản +5.1 bp/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±8.3 bp/tháng — lợi suất tăng thì giá trái phiếu giảm. (Đối chiếu FRED: Lợi suất 10 năm 4.70% → 4.92% (+22 điểm cơ bản trong 3 tháng; ngưỡng ±25).)",
       "asOf": "2026-11-22",
       "confidence": "cao",
       "source": "dautu"
     },
     "stocks": {
       "value": -1,
-      "reason": "S&P 500 trên Bản Đồ Tài Sản -3.40%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: S&P 500 -10.0% trong 3 tháng (7674 → 6910; ngưỡng ±3%).)",
+      "reason": "S&P 500 trên Bản Đồ Tài Sản -3.40%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: S&P 500 -5.4% trong 3 tháng (7653 → 7237; ngưỡng ±3%).)",
       "asOf": "2026-11-22",
       "confidence": "cao",
       "source": "dautu"
@@ -110,7 +110,7 @@
     },
     "commodities": {
       "value": -1,
-      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -1.84%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~84 ngày).)",
+      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -1.84%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~85 ngày).)",
       "asOf": "2026-11-22",
       "confidence": "cao",
       "source": "dautu"
@@ -118,17 +118,17 @@
     "fedCycle": {
       "value": "hiking",
       "reason": "Lãi suất Fed 3.62% → 3.88% trong 6 tháng (+0.26 điểm %; ngưỡng ±0,2).",
-      "asOf": "2026-11-20",
+      "asOf": "2026-11-23",
       "confidence": "cao"
     },
     "creditInputs": {
       "value": {
-        "m2yoy": 5.71,
+        "m2yoy": 5.89,
         "fedRate": 3.88,
         "treasury10y": 4.92
       },
-      "reason": "M2 YoY 5.71% (tháng 09/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.92%.",
-      "asOf": "2026-11-20",
+      "reason": "M2 YoY 5.89% (tháng 10/2026), lãi suất Fed 3.88%, lợi suất 10 năm 4.92%.",
+      "asOf": "2026-11-23",
       "confidence": "cao"
     },
     "debtGdpLevel": {
@@ -194,7 +194,7 @@
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-24T07:02:01.101Z",
+    "fetchedAt": "2026-11-25T05:36:42.483Z",
     "rates": {
       "refi": {
         "value": 4.5,
