@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-26T05:19:21.129Z",
+  "generatedAt": "2026-11-27T05:15:48.607Z",
   "source": "FRED — Federal Reserve Bank of St. Louis (fred.stlouisfed.org)",
   "thresholds": {
     "yieldBp": 25,
@@ -110,7 +110,7 @@
     },
     "commodities": {
       "value": -1,
-      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -2.13%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~86 ngày).)",
+      "reason": "Rổ hàng hoá DBC trên Bản Đồ Tài Sản -2.13%/tháng (cột \"TB 3 tháng\" = trung bình 3 tháng gần nhất); ngưỡng ±1%/tháng. (Đối chiếu FRED: Chỉ số hàng hóa IMF +14.3% trong 3 tháng (số liệu tháng 09/2026, trễ ~87 ngày).)",
       "asOf": "2026-11-26",
       "confidence": "cao",
       "source": "dautu"
@@ -187,14 +187,14 @@
     },
     "vnRateCycle": {
       "value": "normal",
-      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.69%, 1 tuần 4.73%, 3 tháng 8.01%.",
+      "reason": "Lãi suất tái cấp vốn giữ nguyên 4.5% từ 19/03/2023 (44 tháng) — chưa có chu kỳ tăng/giảm chính thức. Liên ngân hàng ngày //: qua đêm 4.84%, 1 tuần 5.3%, 3 tháng 7.86%.",
       "asOf": "2023-03-19",
       "confidence": "cao"
     }
   },
   "vn": {
     "ok": true,
-    "fetchedAt": "2026-11-26T05:19:20.807Z",
+    "fetchedAt": "2026-11-27T05:15:48.584Z",
     "rates": {
       "refi": {
         "value": 4.5,
@@ -208,10 +208,10 @@
       },
       "interbank": {
         "date": null,
-        "overnight": 4.69,
-        "w1": 4.73,
-        "m1": 5.72,
-        "m3": 8.01
+        "overnight": 4.84,
+        "w1": 5.3,
+        "m1": 3.48,
+        "m3": 7.86
       }
     },
     "credit": {
